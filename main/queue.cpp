@@ -11,6 +11,9 @@ Queue::Queue() {
 }
 void Queue::push(void* val) {
     QueueNode* n = (QueueNode*)malloc(sizeof(QueueNode));
+    if (n == NULL) {
+      exit(-1);
+    }
     n->value = val;
     n->next = NULL;
     n->prev = NULL;
