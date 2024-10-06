@@ -1,11 +1,32 @@
-#include "queue.h"
-void setup() {
-  // put your setup code here, to run once:
+#include "maze.h"
+Robot robot;
+Maze maze(&robot);
+void setup(){
   Serial.begin(115200);
- 
+  while(!Serial);
+  Serial.println("Serial Connected");
 }
+std::vector<Direction> nextMove;
+void loop(){
+  switch(robot.status){
+    case TRAVERSING:
+      //Serial.println("Traversing");
+      nextMove = maze.findNextMove();
+      robot.move(nextMove);
+      break;
+    case BACKTRACKING:
+      Serial.println("Backtracking");
+      break;
+    case FINISH:
+      Serial.println("Finishing");
+      robot.status = END;
+    case END:
+      break;
+  }
+}
+void setup1(){
 
-void loop() {
-  // put your main code here, to run repeatedly:
-
+}
+void loop1(){
+  
 }
