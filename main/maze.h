@@ -1,5 +1,6 @@
 #include <map>
 #include <queue>
+#include <stack>
 #include "robot.h"
 
 struct Tile {
@@ -23,11 +24,12 @@ struct Tile {
 
 class Maze {
 private:
-
+  bool hasWall(Point p, Direction d);
 public:
-  std::map<Point,Tile> maze;
-  std::map<Point,Tile> floor2;
+  std::map<Point,Tile,PointCmp> maze;
+  std::map<Point,Tile,PointCmp> floor2;
   Robot* robot;
   Maze(Robot* r);
   std::vector<Direction> findNextMove();
+  void updateTile();
 };

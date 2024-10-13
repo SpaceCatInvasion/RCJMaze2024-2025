@@ -4,10 +4,16 @@ struct Point {
   int x;
   int y;
 };
+struct PointCmp {
+  bool operator()(const Point &lhs, const Point &rhs) const {
+    return lhs.x>lhs.y;
+  }
+};
+
 enum Direction {
   NORTH=0,
-  SOUTH=1,
-  EAST=2,
+  SOUTH=2,
+  EAST=1,
   WEST=3
 };
 enum Status {
@@ -16,6 +22,7 @@ enum Status {
   FINISH=2,
   END=3
 };
+
 class Robot {
 private:
 public:
@@ -26,3 +33,4 @@ public:
   void move(std::vector<Direction> directions);
 };
 bool samePoint(Point p1, Point p2);
+Point nextPoint(Point p, Direction d);
