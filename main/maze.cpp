@@ -1,4 +1,5 @@
 #include "maze.h"
+
 bool Maze::hasWall(Point p, Direction d){
   switch(d){
     case NORTH:
@@ -45,30 +46,33 @@ std::vector<Direction> Maze::findNextMove(){
       }
       break;
     }
-    Point next = nextPoint(p,robot->dir);
-    if(!hasWall(p,robot->dir)&&!bfsVisited[next]){
+    Point next = nextPoint(p,robot->facing);
+    if(!hasWall(p,robot->facing)&&!bfsVisited[next]){
       q.push(next);
       if(paths.count(next)==0) paths[next] = p;
       bfsVisited[next] = 1;
     } 
-    next = nextPoint(p,(Direction)((robot->dir+1)%4));
-    if(!hasWall(p,(Direction)((robot->dir+1)%4))&&!bfsVisited[next]) {
+    next = nextPoint(p,(Direction)((robot->facing+1)%4));
+    if(!hasWall(p,(Direction)((robot->facing+1)%4))&&!bfsVisited[next]) {
       q.push(next);
       if(paths.count(next)==0) paths[next] = p;
       bfsVisited[next] = 1;
     }
-    next = nextPoint(p,(Direction)((robot->dir+3)%4));
-    if(!hasWall(p,(Direction)((robot->dir+3)%4))&&!bfsVisited[next]) {
+    next = nextPoint(p,(Direction)((robot->facing+3)%4));
+    if(!hasWall(p,(Direction)((robot->facing+3)%4))&&!bfsVisited[next]) {
       q.push(next);
       if(paths.count(next)==0) paths[next] = p;
       bfsVisited[next] = 1;
     }
-    next = nextPoint(p,(Direction)((robot->dir+2)%4));
-    if(!hasWall(p,(Direction)((robot->dir+2)%4))&&!bfsVisited[next]) {
+    next = nextPoint(p,(Direction)((robot->facing+2)%4));
+    if(!hasWall(p,(Direction)((robot->facing+2)%4))&&!bfsVisited[next]) {
       q.push(next);
       if(paths.count(next)==0) paths[next] = p;
       bfsVisited[next] = 1;
     }
+  }
+  if(pathBack.empty()) {
+    robot->status=BACKTRACKING;
   }
   return pathBack;
 }

@@ -33,3 +33,4 @@ public:
   std::vector<Direction> findNextMove();
   void updateTile();
 };
+void clearTile(Tile*t);

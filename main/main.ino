@@ -12,7 +12,7 @@ void loop(){
     case TRAVERSING:
       //Serial.println("Traversing");
       nextMove = maze.findNextMove();
-      robot.move(nextMove);
+      robot.moveDirections(nextMove);
       break;
     case BACKTRACKING:
       Serial.println("Backtracking");

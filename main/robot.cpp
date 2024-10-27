@@ -1,22 +1,10 @@
 #include "robot.h"
-
-Robot::Robot(){
-  pos.x = 0;
-  pos.y = 0;
-  dir = NORTH;
-  status = TRAVERSING;
-}
-
-void Robot::move(std::vector<Direction> directions){
-
-}
-
 bool samePoint(Point p1, Point p2){
   return (p1.x==p2.x&&p1.y==p2.y);
 }
 Point nextPoint(Point p, Direction d){
-  switch(d){
-    Point temp;
+  Point temp;
+  switch(d){  
     case NORTH:
       temp.x=p.x;
       temp.y=p.y+1;
@@ -39,3 +27,19 @@ Point nextPoint(Point p, Direction d){
   err.y=-100;
   return err;
 }
+Robot::Robot(){
+  pos.x = 0;
+  pos.y = 0;
+  facing = NORTH;
+  status = TRAVERSING;
+}
+void Robot::moveRobot(Direction dir){
+  facing = dir;
+}
+void Robot::moveDirections(std::vector<Direction> directions){
+  for(Direction d : directions){
+    moveRobot(d);
+    pos = nextPoint(pos, d);
+  }
+}
+
