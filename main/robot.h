@@ -1,5 +1,14 @@
 #pragma once
 #include <vector>
+#include "bno.h"
+#include "tof.h"
+#include "motor.h"
+#include <math.h>
+
+#define WIDTH 15.2
+#define ENC_PER_ROT 580
+#define WHEELDIA 7.25
+
 struct Point {
   int x;
   int y;
@@ -34,3 +43,10 @@ public:
 };
 bool samePoint(Point p1, Point p2);
 Point nextPoint(Point p, Direction d);
+
+void wallTrace(int cm, int speed);
+
+#define TURNKP 2
+void turn_to(int deg);
+void turn(int deg);
+void turnRounded(int deg);
