@@ -31,7 +31,7 @@ void backward(int speed){
   lmotors(-speed);
   rmotors(-speed);
 }
-void stop(){
+void stop_motors(){
   lmotors(0);
   rmotors(0);
 }

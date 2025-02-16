@@ -13,7 +13,7 @@ void lmotors(int speed);
 void rmotors(int speed);
 void forward(int speed);
 void backward(int speed);
-void stop();
+void stop_motors();
 
 void forwardCm(int speed, int cm);
 void backwardCm(int speed, int cm);

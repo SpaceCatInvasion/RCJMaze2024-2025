@@ -9,6 +9,7 @@
 #define WIDTH 15.6
 #define ENC_PER_ROT 220
 #define WHEELDIA 6
+#define TOF_WIDTH 17.3
 
 struct Point {
   int x;
@@ -39,6 +40,9 @@ enum ReturnError {
   RAMP = 3,
 };
 
+#define BASE_TURN_SPEED 25
+#define TURNKP 0.5
+
 class Robot {
 private:
   
@@ -49,7 +53,12 @@ public:
   Robot();
   void moveDirections(std::vector<Direction> directions);
   void moveRobot(Direction dir);
+  double sideAlignment();
+  ReturnError robotForward(double cm);
   ReturnError wallTrace(int cm, int speed);
+  void turn_to(int deg);
+  void turn(int deg);
+  void turnRounded(int deg);
 };
 bool samePoint(Point p1, Point p2);
 Point nextPoint(Point p, Direction d);
@@ -57,8 +66,4 @@ int directionAngle(Direction d);
 
 void wallTrace(int cm, int speed);
 
-#define BASE_TURN_SPEED 25
-#define TURNKP 0.5
-void turn_to(int deg);
-void turn(int deg);
-void turnRounded(int deg);
+
