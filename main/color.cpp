@@ -26,5 +26,11 @@ TileColor getColor(){
   
   Serial.print(" clear: ");
   Serial.println(c);
-  
+
+  if(r<5&&g<5&&b<5) //placeholder
+    return BLACK;
+  else if (r>40&&g>40&&b>40)
+    return WHITE;
+  else
+    return RED;
 }
