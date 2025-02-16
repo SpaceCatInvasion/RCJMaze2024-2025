@@ -1,19 +1,25 @@
 #pragma once
 #include "robot.h"
 
-#define kP 0.5
-#define kD 0.001
+#define kP 5
+#define kD 1
 
 extern volatile int enc;
+#define ENC_PIN_INTER 6
+#define ENC_PIN 7
+void enc_update();
 
-void lmotor(int speed);
-void rmotor(int speed);
+void lmotors(int speed);
+void rmotors(int speed);
 void forward(int speed);
 void backward(int speed);
 void stop();
 
-inline int cmToEnc(double cm);
-inline double encToCm(int enc);
+void forwardCm(int speed, int cm);
+void backwardCm(int speed, int cm);
+
+ int cmToEnc(double cm);
+ double encToCm(int enc);
 
 class Motor {
 public:
@@ -23,4 +29,9 @@ public:
   Motor(int f, int r);
 };
 
-extern Motor m;
+// extern Motor m;
+
+extern Motor frontLeft;
+extern Motor frontRight;
+extern Motor backLeft;
+extern Motor backRight;

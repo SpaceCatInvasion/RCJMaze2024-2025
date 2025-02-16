@@ -76,6 +76,50 @@ std::vector<Direction> Maze::findNextMove(){
   }
   return pathBack;
 }
+
 void Maze::updateTile(){
-  
+  bool wallN, wallS, wallE, wallW;
+  switch(robot->facing){
+    case NORTH:
+      wallN = readTOF(FRONT_TOF)<MIN_DIST;
+      wallS = readTOF(BACK_TOF)<MIN_DIST;
+      wallE = readTOF(RIGHT_TOF)<MIN_DIST;
+      wallW = readTOF(LEFT_TOF)<MIN_DIST;
+      break;
+    case SOUTH:
+      wallS = readTOF(FRONT_TOF)<MIN_DIST;
+      wallN = readTOF(BACK_TOF)<MIN_DIST;
+      wallW = readTOF(RIGHT_TOF)<MIN_DIST;
+      wallE = readTOF(LEFT_TOF)<MIN_DIST;
+      break;
+    case EAST:
+      wallE = readTOF(FRONT_TOF)<MIN_DIST;
+      wallW = readTOF(BACK_TOF)<MIN_DIST;
+      wallS = readTOF(RIGHT_TOF)<MIN_DIST;
+      wallN = readTOF(LEFT_TOF)<MIN_DIST;
+      break;
+    case WEST:
+      wallW = readTOF(FRONT_TOF)<MIN_DIST;
+      wallE = readTOF(BACK_TOF)<MIN_DIST;
+      wallN = readTOF(RIGHT_TOF)<MIN_DIST;
+      wallS = readTOF(LEFT_TOF)<MIN_DIST;
+      break;
+  }
+  if(wallN){
+    maze[robot->pos].NWall=1;
+    maze[nextPoint(robot->pos,NORTH)].SWall=1;
+  }
+  if(wallS){
+    maze[robot->pos].SWall=1;
+    maze[nextPoint(robot->pos,SOUTH)].NWall=1;
+  }
+  if(wallW){
+    maze[robot->pos].WWall=1;
+    maze[nextPoint(robot->pos,WEST)].EWall=1;
+  }
+  if(wallE){
+    maze[robot->pos].EWall=1;
+    maze[nextPoint(robot->pos,EAST)].WWall=1;
+  }
+  maze[robot->pos].visited=1;
 }

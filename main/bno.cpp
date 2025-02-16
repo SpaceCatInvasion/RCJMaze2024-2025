@@ -14,12 +14,13 @@ int getBNO(){
 }
 
 int roundAngle(int angle){
-  if(angle<0) angle=(angle%360)+360;
+  angle%=360;
+  if(angle<0) angle+=360;
   return angle%90>45?(angle+90)-(angle%90): angle-(angle%90);
 }
 
 int getTilt(){
   sensors_event_t event;
   bno.getEvent(&event);
-  return event.orientation.y;
+  return -event.orientation.z;
 }

@@ -3,6 +3,8 @@
 #include <stack>
 #include "robot.h"
 
+#define MIN_DIST 15
+
 struct Tile {
   bool NWall : 1;
   bool SWall : 1;

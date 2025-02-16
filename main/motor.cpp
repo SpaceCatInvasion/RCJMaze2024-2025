@@ -1,30 +1,58 @@
 #include "motor.h"
 
-Motor m(11,10);
+//Motor m(11,10);
+
+Motor frontLeft(9,8);
+Motor frontRight(11,10);
+Motor backLeft(12,13);
+Motor backRight(14,15);
 
 volatile int enc = 0;
-
-
-void lmotor(int speed){
-
+void enc_update(){
+  if(digitalRead(ENC_PIN)==HIGH)
+    enc++;
+  else
+    enc--;
 }
-void rmotor(int speed){
 
+void lmotors(int speed){
+  frontLeft.speed(speed);
+  backLeft.speed(-speed);
+}
+void rmotors(int speed){
+  frontRight.speed(-speed);
+  backRight.speed(speed);
 }
 void forward(int speed){
-
+  lmotors(speed);
+  rmotors(speed);
 }
 void backward(int speed){
-
+  lmotors(-speed);
+  rmotors(-speed);
 }
 void stop(){
-
+  lmotors(0);
+  rmotors(0);
 }
 
-inline int cmToEnc(double cm){
+void forwardCm(int speed, int cm){
+  enc=0;
+  while(encToCm(enc)<cm){
+    forward(speed);
+  }
+}
+void backwardCm(int speed, int cm){
+  enc = 0;
+  while(encToCm(enc)>-cm){
+    backward(speed);
+  }
+}
+
+int cmToEnc(double cm){
   return cm*ENC_PER_ROT/(PI*WHEELDIA);
 }
-inline double encToCm(int enc){
+double encToCm(int enc){
   return enc*PI*WHEELDIA/ENC_PER_ROT;
 }
 
