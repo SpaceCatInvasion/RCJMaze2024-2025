@@ -11,8 +11,7 @@ void colorBegin(){
 }
 
 TileColor getColor(){
-  if(!apds.colorDataReady())
-    return;
+  while(!apds.colorDataReady()) Serial.println("Waiting on color...");
   uint16_t r,g,b,c;
   apds.getColorData(&r, &g, &b, &c);
   Serial.print("red: ");

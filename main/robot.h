@@ -27,9 +27,10 @@ enum Direction {
 };
 enum Status {
   TRAVERSING = 0,
-  BACKTRACKING = 1,
-  FINISH = 2,
-  END = 3
+  DANGERZONE = 1,
+  BACKTRACKING = 2,
+  FINISH = 3,
+  END = 4
 };
 enum ReturnError {
   GOOD = 0,

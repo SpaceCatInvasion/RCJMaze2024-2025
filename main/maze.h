@@ -17,11 +17,11 @@ struct Tile {
   bool visited : 1;
   bool blue : 1;
   bool black : 1;
+  bool red : 1;
   bool NRamp : 1; //meaning robot faces north when entering ramp
   bool SRamp : 1;
   bool ERamp : 1;
   bool WRamp : 1;
-  bool filler : 1;
 };
 
 class Maze {
