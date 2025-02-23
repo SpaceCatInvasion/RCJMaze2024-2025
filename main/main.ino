@@ -37,6 +37,9 @@ void setup(){
   maze.updateTile();
   enc=0;
 }
+
+
+
 void loop(){
 
 
