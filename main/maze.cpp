@@ -103,6 +103,69 @@ std::vector<Direction> Maze::findNextMove(){
 }
 
 /*
+ * Find the next closest unvisited tile and return the directions to it
+ *
+ * @param None
+ * @return Vector of the cardinal directions needed to get to the next unvisited tile
+ */
+std::vector<Direction> Maze::findOrigin(){
+  std::map<Point,Point,PointCmp> paths; // Paths back to original position from any point
+  std::map<Point,bool,PointCmp> bfsVisited;
+  bfsVisited[robot->pos] = 1;
+  std::queue<Point> q; // BFS queue
+  q.push(robot->pos);
+  std::vector<Direction> pathBack(0); // Returned path
+  while(!q.empty()){
+    Point p = q.front();
+    q.pop();
+    if(p.x==0&&p.y==0){ // Found origin - find path back
+      Point prev = p;
+      Point trace = paths[p];
+      std::stack<Direction> s;
+      for(;;){
+        if(prev.y>trace.y) s.push(NORTH);
+        else if(prev.y<trace.y) s.push(SOUTH);
+        else if(prev.x>trace.x) s.push(EAST);
+        else if(prev.x<trace.x) s.push(WEST);
+        if(samePoint(trace,robot->pos)) break;
+        prev = trace;
+        trace = paths[trace];
+      }
+      while(!s.empty()){
+        pathBack.push_back(s.top());
+        s.pop();
+      }
+      break;
+    }
+    Point next = nextPoint(p,robot->facing);
+    if(!hasWall(p,robot->facing)&&!bfsVisited[next]){ // Check if the tile infront is valid
+      q.push(next);
+      if(paths.count(next)==0) paths[next] = p;
+      bfsVisited[next] = 1;
+    } 
+    next = nextPoint(p,(Direction)((robot->facing+1)%4));
+    if(!hasWall(p,(Direction)((robot->facing+1)%4))&&!bfsVisited[next]) {
+      q.push(next);
+      if(paths.count(next)==0) paths[next] = p;
+      bfsVisited[next] = 1;
+    }
+    next = nextPoint(p,(Direction)((robot->facing+3)%4));
+    if(!hasWall(p,(Direction)((robot->facing+3)%4))&&!bfsVisited[next]) {
+      q.push(next);
+      if(paths.count(next)==0) paths[next] = p;
+      bfsVisited[next] = 1;
+    }
+    next = nextPoint(p,(Direction)((robot->facing+2)%4));
+    if(!hasWall(p,(Direction)((robot->facing+2)%4))&&!bfsVisited[next]) {
+      q.push(next);
+      if(paths.count(next)==0) paths[next] = p;
+      bfsVisited[next] = 1;
+    }
+  }
+  return pathBack;
+}
+
+/*
  * Update the walls of the current tile the robot is on
  *
  * @param None

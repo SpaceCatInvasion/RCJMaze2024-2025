@@ -54,7 +54,7 @@ public:
   Direction facing;
   Status status;
   Robot();
-  void moveDirections(std::vector<Direction> directions);
+  bool moveDirections(std::vector<Direction> directions);
   void moveRobot(Direction dir); 
   double sideAlignment();
   ReturnError robotForward(double cm);

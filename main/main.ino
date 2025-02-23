@@ -7,11 +7,13 @@ Maze maze(&robot);
 
 
 void setup(){
-  
   Serial.begin(115200);
   delay(2000);
   //while(!Serial);
   Serial.println("Serial Connected");
+  pinMode(20, INPUT);
+  while(digitalRead(20)==HIGH);
+  
 
   pinMode(ENC_PIN,INPUT);
   pinMode(ENC_PIN_INTER,INPUT);
@@ -43,14 +45,20 @@ void setup(){
 void loop(){
 
 
-  std::vector<Direction> directions = {NORTH, NORTH, EAST, EAST, SOUTH, SOUTH, WEST, WEST}; 
-  robot.moveDirections(directions);
+  // std::vector<Direction> directions = {NORTH, NORTH, EAST, EAST, SOUTH, SOUTH, WEST, WEST}; 
+  // robot.moveDirections(directions);
 
-  // switch(robot.status){
-  //   case TRAVERSING:
-  //     robot.moveDirections(maze.findNextMove());
-  //     maze.updateTile();
-  // }
+  switch(robot.status){
+    case TRAVERSING:
+    case DANGERZONE:
+      if(!robot.moveDirections(maze.findNextMove())&&robot.status==DANGERZONE) robot.status=BACKTRACKING;
+      maze.updateTile();
+      break;
+    case BACKTRACKING:
+      robot.moveDirections(maze.findOrigin());
+      robot.status = FINISH;
+      break;
+  }
 }
 // void setup1(){
 

@@ -85,7 +85,7 @@ double aToR(double a){
  * @return Acute angle from the y-axis
  */
 double Robot::sideAlignment(){
-  double dist=readTOF(LEFT_TOF)+1; //bias - positive = goes closer to wall
+  double dist=readTOF(LEFT_TOF)+2; //bias - positive = goes closer to wall
   //dist*=dist/3; //exagerates movement - (dist/b)^a decrease a to exagerate less, b is focus of exageration
   dist=dist<0?0.2:dist;
   if(dist < 15 && dist > 0.1){
@@ -175,13 +175,20 @@ Robot::Robot(){
  */
 void Robot::moveRobot(Direction dir){
   facing = dir;
+  stop_motors(); delay(200);
   turn_to(directionAngle(dir));
+  stop_motors(); delay(1000);
+  frontAlign();
+  backAlign();
+  turn_to(directionAngle(dir));
+  stop_motors(); delay(1000);
   switch(robotForward(TILE_MOVE_DIST/sin(aToR(sideAlignment())))){
     case RAMP:
       break;
     case GOOD:
       stop_motors(); delay(200);
       turn_to(directionAngle(dir));
+      stop_motors(); delay(1000);
       frontAlign();
       backAlign();
       break;
@@ -191,14 +198,16 @@ void Robot::moveRobot(Direction dir){
  * Move robot on the path denoted by the vector directions
  *
  * @param Vector of the directions to move in
- * @return None
+ * @return If there was somewhere to move to
  */
-void Robot::moveDirections(std::vector<Direction> directions){
+bool Robot::moveDirections(std::vector<Direction> directions){
+  if(directions.empty()) return false;
   for(Direction d : directions){
     moveRobot(d);
     stop_motors(); delay(1000);
     pos = nextPoint(pos, d);
   }
+  return true;
 }
 
 /*
@@ -213,7 +222,7 @@ void Robot::turn_to(int deg){
   double err = deg-getBNO();
   if(err>180) err-=360;
   if(err<-180) err+=360;
-  while(err>3||err<-3){
+  while(err>2||err<-2){
     lmotors(err*TURNKP+(err>0?BASE_TURN_SPEED:-BASE_TURN_SPEED));
     rmotors(-1*err*TURNKP+(err>0?-BASE_TURN_SPEED:BASE_TURN_SPEED));
     err = deg-getBNO();

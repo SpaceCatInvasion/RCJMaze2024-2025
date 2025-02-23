@@ -30,6 +30,7 @@ public:
   Robot* robot;
   Maze(Robot* r);
   std::vector<Direction> findNextMove();
+  std::vector<Direction> findOrigin();
   void updateTile(); 
 };
 void clearTile(Tile*t);
