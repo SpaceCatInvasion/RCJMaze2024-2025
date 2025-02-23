@@ -1,5 +1,11 @@
 #include "maze.h"
 
+/*
+ * Return if there is a wall in between the tile at point p and tile in direction d
+ *
+ * @param Point p
+ * @return Vector of the cardinal directions needed to get to the next unvisited tile
+ */
 bool Maze::hasWall(Point p, Direction d){
   switch(d){
     case NORTH:
@@ -15,19 +21,25 @@ bool Maze::hasWall(Point p, Direction d){
 }
 Maze::Maze(Robot* r){
   robot = r;
-  //r->m=self;
 }
+
+/*
+ * Find the next closest unvisited tile and return the directions to it
+ *
+ * @param None
+ * @return Vector of the cardinal directions needed to get to the next unvisited tile
+ */
 std::vector<Direction> Maze::findNextMove(){
-  std::map<Point,Point,PointCmp> paths;
+  std::map<Point,Point,PointCmp> paths; // Paths back to original position from any point
   std::map<Point,bool,PointCmp> bfsVisited;
   bfsVisited[robot->pos] = 1;
-  std::queue<Point> q;
+  std::queue<Point> q; // BFS queue
   q.push(robot->pos);
-  std::vector<Direction> pathBack(0);
+  std::vector<Direction> pathBack(0); // Returned path
   while(!q.empty()){
     Point p = q.front();
     q.pop();
-    if(!maze[p].visited){ //find path back
+    if(!maze[p].visited){ // Found closest unvisited tile - find path back
       Point prev = p;
       Point trace = paths[p];
       std::stack<Direction> s;
@@ -47,8 +59,8 @@ std::vector<Direction> Maze::findNextMove(){
       break;
     }
     Point next = nextPoint(p,robot->facing);
-    if(!hasWall(p,robot->facing)&&!bfsVisited[next]){
-      if(!(robot->status==TRAVERSING&&maze[p].red)){
+    if(!hasWall(p,robot->facing)&&!bfsVisited[next]){ // Check if the tile infront is valid
+      if(!(robot->status==TRAVERSING&&maze[p].red)){ // Check if tile is in dangerzone
         q.push(next);
         if(paths.count(next)==0) paths[next] = p;
         bfsVisited[next] = 1;
@@ -81,15 +93,21 @@ std::vector<Direction> Maze::findNextMove(){
   }
   if(pathBack.empty()) {
     if(robot->status==TRAVERSING){
-      robot->status=DANGERZONE;
-      return findNextMove();
+      robot->status=DANGERZONE; // No more tiles outside danger zone - start traversing danger zone
+      return findNextMove(); 
     }
     else
-      robot->status=BACKTRACKING;
+      robot->status=BACKTRACKING; // No more tiles to traverse in entire maze - start backtracking
   }
   return pathBack;
 }
 
+/*
+ * Update the walls of the current tile the robot is on
+ *
+ * @param None
+ * @return None
+ */
 void Maze::updateTile(){
   bool wallN, wallS, wallE, wallW;
   switch(robot->facing){

@@ -10,6 +10,12 @@ void colorBegin(){
   apds.enableColor(true);
 }
 
+/*
+ * Find color of tile
+ *
+ * @param None
+ * @return The tile color
+ */
 TileColor getColor(){
   while(!apds.colorDataReady()) Serial.println("Waiting on color...");
   uint16_t r,g,b,c;

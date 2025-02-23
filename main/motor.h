@@ -5,8 +5,8 @@
 #define kD 1
 
 extern volatile int enc;
-#define ENC_PIN_INTER 6
-#define ENC_PIN 7
+#define ENC_PIN_INTER 17
+#define ENC_PIN 16
 void enc_update();
 
 void lmotors(int speed);

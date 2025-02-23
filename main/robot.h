@@ -6,10 +6,13 @@
 #include <math.h>
 #include "color.h"
 
-#define WIDTH 15.6
-#define ENC_PER_ROT 220
-#define WHEELDIA 6
-#define TOF_WIDTH 17.3
+#define WIDTH 12.15
+#define ENC_PER_ROT 230
+#define WHEELDIA 6.5
+#define TOF_WIDTH 12.55
+#define FRONTBACKTOF 17.6
+
+#define TILE_MOVE_DIST 28
 
 struct Point {
   int x;
@@ -40,7 +43,7 @@ enum ReturnError {
   RAMP = 3,
 };
 
-#define BASE_TURN_SPEED 25
+#define BASE_TURN_SPEED 50
 #define TURNKP 0.5
 
 class Robot {
@@ -52,18 +55,17 @@ public:
   Status status;
   Robot();
   void moveDirections(std::vector<Direction> directions);
-  void moveRobot(Direction dir);
+  void moveRobot(Direction dir); 
   double sideAlignment();
   ReturnError robotForward(double cm);
-  ReturnError wallTrace(int cm, int speed);
+  ReturnError wallTrace(int cm, int speed); 
   void turn_to(int deg);
   void turn(int deg);
-  void turnRounded(int deg);
+  void frontAlign();
+  void backAlign();
 };
 bool samePoint(Point p1, Point p2);
 Point nextPoint(Point p, Direction d);
 int directionAngle(Direction d);
-
-void wallTrace(int cm, int speed);
 
 

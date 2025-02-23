@@ -43,6 +43,7 @@ int directionAngle(Direction d){
   return -1;
 }
 
+// Don't pay attention to this function it doesn't work well
 ReturnError Robot::wallTrace(int cm, int speed){
   enc=0;
   double prevErr = 0, dist = 0, err = 0;
@@ -67,18 +68,28 @@ ReturnError Robot::wallTrace(int cm, int speed){
   }
   return GOOD;
 }
+
+// Radians to Angle
 double rToA(double r){
   return r*180/PI;
 }
+// Angle to Radians
 double aToR(double a){
   return a*PI/180;
 }
+
+/*
+ * Find angle to turn to in order to be aligned with the next tile
+ *
+ * @param None
+ * @return Acute angle from the y-axis
+ */
 double Robot::sideAlignment(){
   double dist=readTOF(LEFT_TOF)+1; //bias - positive = goes closer to wall
   //dist*=dist/3; //exagerates movement - (dist/b)^a decrease a to exagerate less, b is focus of exageration
   dist=dist<0?0.2:dist;
   if(dist < 15 && dist > 0.1){
-    double theta = atan(60/(2*dist-30+TOF_WIDTH))>=0?rToA(atan(60/(2*dist-30+TOF_WIDTH))):rToA(atan(60/(2*dist-30+TOF_WIDTH)))+180;
+    double theta = atan(60/(2*dist-30+TOF_WIDTH))>=0?rToA(atan(60/(2*dist-30+TOF_WIDTH))):rToA(atan(60/(2*dist-30+TOF_WIDTH)))+180; // math
     turn_to(roundAngle(getBNO())-90+theta);
     stop_motors(); delay(10);
     return theta;
@@ -87,21 +98,67 @@ double Robot::sideAlignment(){
   //dist*=dist/3; //exagerates movement - (dist/b)^a decrease a to exagerate less, b is focus of exageration
   dist=dist<0?0.2:dist;
   if(dist < 15 && dist > 0.1){
-    double theta = atan(60/(2*dist-30+TOF_WIDTH))>=0?rToA(atan(60/(2*dist-30+TOF_WIDTH))):rToA(atan(60/(2*dist-30+TOF_WIDTH)))+180;
+    double theta = atan(60/(2*dist-30+TOF_WIDTH))>=0?rToA(atan(60/(2*dist-30+TOF_WIDTH))):rToA(atan(60/(2*dist-30+TOF_WIDTH)))+180; //math
     turn_to(roundAngle(getBNO())+90-theta);
     stop_motors(); delay(10);
     return theta;
   }
-  return 0;
+  return 90;
 }
+
+/*
+ * Move the robot forward while checking color sensor
+ *
+ * @param None
+ * @return Whether or not the robot finds a special case (e.g. ramp, black tile)
+ */
 ReturnError Robot::robotForward(double cm){
+  Serial.print("CM:");Serial.println(cm);
   enc=0;
   while(enc<cmToEnc(cm)){
-    forward(60);
+    // Add camera check if interrupt not developed
+    // Add color check
+    forward(30);
   }
   stop_motors(); delay(10);
   return GOOD;
 }
+
+/*
+ * Align the robot with the front TOF
+ *
+ * @param None
+ * @return None
+ */
+void Robot::frontAlign(){
+  int dist = readTOF(FRONT_TOF);
+  while(dist<15&&dist>(30-FRONTBACKTOF)/2){
+    forward(20);
+    dist=readTOF(FRONT_TOF);
+  }
+  while(dist<15&&dist<(30-FRONTBACKTOF)/2){
+    backward(20);
+    dist=readTOF(FRONT_TOF);
+  }
+}
+/*
+ * Align the robot with the back TOF
+ *
+ * @param None
+ * @return None
+ */
+void Robot::backAlign(){
+  int dist = readTOF(BACK_TOF);
+  while(dist<15&&dist>(30-FRONTBACKTOF)/2){
+    backward(20);
+    dist=readTOF(BACK_TOF);
+  }
+  while(dist<15&&dist<(30-FRONTBACKTOF)/2){
+    forward(20);
+    dist=readTOF(BACK_TOF);
+  }
+}
+
 
 Robot::Robot(){
   pos.x = 0;
@@ -109,21 +166,47 @@ Robot::Robot(){
   facing = NORTH;
   status = TRAVERSING;
 }
+
+/*
+ * Move the robot in the direction dir
+ *
+ * @param Direction dir to move towards
+ * @return None
+ */
 void Robot::moveRobot(Direction dir){
   facing = dir;
   turn_to(directionAngle(dir));
-  switch(robotForward(30/sin(aToR(sideAlignment())))){
+  switch(robotForward(TILE_MOVE_DIST/sin(aToR(sideAlignment())))){
     case RAMP:
+      break;
+    case GOOD:
+      stop_motors(); delay(200);
+      turn_to(directionAngle(dir));
+      frontAlign();
+      backAlign();
       break;
   }
 }
+/*
+ * Move robot on the path denoted by the vector directions
+ *
+ * @param Vector of the directions to move in
+ * @return None
+ */
 void Robot::moveDirections(std::vector<Direction> directions){
   for(Direction d : directions){
     moveRobot(d);
+    stop_motors(); delay(1000);
     pos = nextPoint(pos, d);
   }
 }
 
+/*
+ * PID turn the robot to specified degrees clockwise from North
+ *
+ * @param Degrees clockwise from North to turn to
+ * @return None
+ */
 void Robot::turn_to(int deg){
   deg %= 360;
   if(deg<0) deg+=360;
@@ -136,15 +219,17 @@ void Robot::turn_to(int deg){
     err = deg-getBNO();
     if(err>180) err-=360;
     if(err<-180) err+=360;
-    Serial.print("Error: "); Serial.println(err);
+    //Serial.print("Error: "); Serial.println(err);
   }
-  Serial.println("DONE");
+  //Serial.println("DONE");
 }
 
+/*
+ * Turn specified degrees clockwise from current angle
+ *
+ * @param Degrees to turn clockwise
+ * @return None
+ */
 void Robot::turn(int deg){
   turn_to(deg + getBNO());
-}
-
-void Robot::turnRounded(int deg){
-  turn_to(roundAngle(deg+getBNO()));
 }
