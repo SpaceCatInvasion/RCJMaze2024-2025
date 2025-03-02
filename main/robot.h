@@ -5,6 +5,8 @@
 #include "motor.h"
 #include <math.h>
 #include "color.h"
+#include "comm.h"
+#include "dropper.h"
 
 #define WIDTH 12.15
 #define ENC_PER_ROT 230

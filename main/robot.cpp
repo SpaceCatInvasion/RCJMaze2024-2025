@@ -116,7 +116,14 @@ ReturnError Robot::robotForward(double cm){
   Serial.print("CM:");Serial.println(cm);
   enc=0;
   while(enc<cmToEnc(cm)){
-    // Add camera check if interrupt not developed
+    if(checkSerial()){ // camera check - replace later with interrupt
+      clearSerial();
+      stop_motors(); delay(500);
+      if(checkSerial()) {
+        drop(readVictim());
+      }
+    }
+
     // Add color check
     forward(30);
   }
