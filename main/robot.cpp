@@ -128,10 +128,19 @@ ReturnError Robot::robotForward(double cm){
       case BLACK:
         stop_motors(); delay(200);
         if(getColor()==BLACK){
-          backwardCm(FORWARD_MOVE_SPEED, encToCm(enc));
+          backwardCm(FORWARD_MOVE_SPEED, encToCm(enc)+1);
           return BLACKTILE;
         }
         break;
+      case RED:
+        if(status==TRAVERSING){
+          stop_motors(); delay(200);
+          if(getColor()==RED){
+            backwardCm(FORWARD_MOVE_SPEED, encToCm(enc)+1);
+            return REDTILE;
+          }
+          break;
+        }
       case WHITE:
       default:
         forward(FORWARD_MOVE_SPEED);
@@ -196,22 +205,25 @@ ReturnError Robot::moveRobot(Direction dir){
   facing = dir;
   stop_motors(); delay(200);
   turn_to(directionAngle(dir));
-  stop_motors(); delay(1000);
+  stop_motors(); delay(200);
   frontAlign();
   backAlign();
   turn_to(directionAngle(dir));
-  stop_motors(); delay(1000);
+  stop_motors(); delay(200);
   switch(robotForward(TILE_MOVE_DIST/sin(aToR(sideAlignment())))){
     case RAMP:
       return RAMP;
     case BLACKTILE:
       stop_motors(); delay(500);
       return BLACKTILE;
+    case REDTILE:
+      stop_motors(); delay(500);
+      return REDTILE;
     case GOOD:
     default:
       stop_motors(); delay(200);
       turn_to(directionAngle(dir));
-      stop_motors(); delay(1000);
+      stop_motors(); delay(200);
       frontAlign();
       backAlign();
       return GOOD;
@@ -228,8 +240,9 @@ ReturnError Robot::moveDirections(std::vector<Direction> directions){
   for(Direction d : directions){
     pos = nextPoint(pos, d);
     ReturnError moveStatus = moveRobot(d);
-    stop_motors(); delay(1000);
+    stop_motors(); delay(200);
     switch(moveStatus){
+      case REDTILE:
       case BLACKTILE:
         return moveStatus;
     }

@@ -61,6 +61,10 @@ void loop(){
           maze.maze[robot.pos].black = 1;
           robot.pos = nextPoint(robot.pos, (Direction)((robot.facing+2)%4)); // return robot's position
           break;
+        case REDTILE:
+          maze.maze[robot.pos].red = 1;
+          robot.pos = nextPoint(robot.pos, (Direction)((robot.facing+2)%4)); // return robot's position
+          break;
         case GOOD:
           maze.updateTile();
           break;
@@ -72,8 +76,8 @@ void loop(){
       robot.status = FINISH;
       break;
   }
-
 }
+
 // void setup1(){
 
 // }

@@ -59,32 +59,32 @@ std::vector<Direction> Maze::findNextMove(){
       break;
     }
     Point next = nextPoint(p,robot->facing);
-    if(!hasWall(p,robot->facing)&&!bfsVisited[next]){ // Check if the tile infront is valid
-      if(!(robot->status==TRAVERSING&&maze[p].red)){ // Check if tile is in dangerzone
+    if(!hasWall(p,robot->facing)&&!bfsVisited[next]&&!maze[next].black){ // Check if the tile infront is valid
+      if(!(robot->status==TRAVERSING&&maze[next].red)){ // Check if tile is in dangerzone
         q.push(next);
         if(paths.count(next)==0) paths[next] = p;
         bfsVisited[next] = 1;
       }
     } 
     next = nextPoint(p,(Direction)((robot->facing+1)%4));
-    if(!hasWall(p,(Direction)((robot->facing+1)%4))&&!bfsVisited[next]) {
-      if(!(robot->status==TRAVERSING&&maze[p].red)){
+    if(!hasWall(p,(Direction)((robot->facing+1)%4))&&!bfsVisited[next]&&!maze[next].black) {
+      if(!(robot->status==TRAVERSING&&maze[next].red)){
         q.push(next);
         if(paths.count(next)==0) paths[next] = p;
         bfsVisited[next] = 1;
       }
     }
     next = nextPoint(p,(Direction)((robot->facing+3)%4));
-    if(!hasWall(p,(Direction)((robot->facing+3)%4))&&!bfsVisited[next]) {
-      if(!(robot->status==TRAVERSING&&maze[p].red)){
+    if(!hasWall(p,(Direction)((robot->facing+3)%4))&&!bfsVisited[next]&&!maze[next].black) {
+      if(!(robot->status==TRAVERSING&&maze[next].red)){
         q.push(next);
         if(paths.count(next)==0) paths[next] = p;
         bfsVisited[next] = 1;
       }
     }
     next = nextPoint(p,(Direction)((robot->facing+2)%4));
-    if(!hasWall(p,(Direction)((robot->facing+2)%4))&&!bfsVisited[next]) {
-      if(!(robot->status==TRAVERSING&&maze[p].red)){
+    if(!hasWall(p,(Direction)((robot->facing+2)%4))&&!bfsVisited[next]&&!maze[next].black) {
+      if(!(robot->status==TRAVERSING&&maze[next].red)){
         q.push(next);
         if(paths.count(next)==0) paths[next] = p;
         bfsVisited[next] = 1;
@@ -138,25 +138,25 @@ std::vector<Direction> Maze::findOrigin(){
       break;
     }
     Point next = nextPoint(p,robot->facing);
-    if(!hasWall(p,robot->facing)&&!bfsVisited[next]){ // Check if the tile infront is valid
+    if(!hasWall(p,robot->facing)&&!bfsVisited[next]&&!maze[next].black){ // Check if the tile infront is valid
       q.push(next);
       if(paths.count(next)==0) paths[next] = p;
       bfsVisited[next] = 1;
     } 
     next = nextPoint(p,(Direction)((robot->facing+1)%4));
-    if(!hasWall(p,(Direction)((robot->facing+1)%4))&&!bfsVisited[next]) {
+    if(!hasWall(p,(Direction)((robot->facing+1)%4))&&!bfsVisited[next]&&!maze[next].black) {
       q.push(next);
       if(paths.count(next)==0) paths[next] = p;
       bfsVisited[next] = 1;
     }
     next = nextPoint(p,(Direction)((robot->facing+3)%4));
-    if(!hasWall(p,(Direction)((robot->facing+3)%4))&&!bfsVisited[next]) {
+    if(!hasWall(p,(Direction)((robot->facing+3)%4))&&!bfsVisited[next]&&!maze[next].black) {
       q.push(next);
       if(paths.count(next)==0) paths[next] = p;
       bfsVisited[next] = 1;
     }
     next = nextPoint(p,(Direction)((robot->facing+2)%4));
-    if(!hasWall(p,(Direction)((robot->facing+2)%4))&&!bfsVisited[next]) {
+    if(!hasWall(p,(Direction)((robot->facing+2)%4))&&!bfsVisited[next]&&!maze[next].black) {
       q.push(next);
       if(paths.count(next)==0) paths[next] = p;
       bfsVisited[next] = 1;

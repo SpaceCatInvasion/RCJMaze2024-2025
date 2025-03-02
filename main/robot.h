@@ -10,13 +10,13 @@
 
 #define WIDTH 12.15
 #define ENC_PER_ROT 230
-#define WHEELDIA 6.5
+#define WHEELDIA 7.4
 #define TOF_WIDTH 12.55
 #define FRONTBACKTOF 17.6
 
-#define TILE_MOVE_DIST 28
+#define TILE_MOVE_DIST 27
 
-#define FORWARD_MOVE_SPEED 30
+#define FORWARD_MOVE_SPEED 40
 
 struct Point {
   int x;
@@ -48,7 +48,7 @@ enum ReturnError {
   NOMOVES = 4
 };
 
-#define BASE_TURN_SPEED 50
+#define BASE_TURN_SPEED 75
 #define TURNKP 0.5
 
 class Robot {

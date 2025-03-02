@@ -38,7 +38,7 @@ TileColor getColor(){
     return SILVER;
   else if ((float)b/r>1.8&&(float)b/g>1.2)
     return BLUE;
-  else if ((float)r/b>1.8&&(float)r/g>1.8)
+  else if ((float)r/b>1.5&&(float)r/g>1.5)
     return RED;
   else if (c>100)
     return WHITE;
