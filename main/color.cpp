@@ -30,12 +30,18 @@ TileColor getColor(){
   Serial.print(b);
   
   Serial.print(" clear: ");
-  Serial.println(c);
+  Serial.print(c);
 
-  if(r<5&&g<5&&b<5) //placeholder
+  if(c<40)
     return BLACK;
-  else if (r>40&&g>40&&b>40)
+  else if (c>500)
+    return SILVER;
+  else if ((float)b/r>1.8&&(float)b/g>1.2)
+    return BLUE;
+  else if ((float)r/b>1.8&&(float)r/g>1.8)
+    return RED;
+  else if (c>100)
     return WHITE;
   else
-    return RED;
+    return UNK;
 }

@@ -36,6 +36,8 @@ void setup(){
 
   colorBegin();
 
+  commBegin();
+
   maze.updateTile();
   enc=0;
 }
@@ -70,6 +72,7 @@ void loop(){
       robot.status = FINISH;
       break;
   }
+
 }
 // void setup1(){
 

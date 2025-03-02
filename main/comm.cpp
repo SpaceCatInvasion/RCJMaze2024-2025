@@ -1,5 +1,7 @@
 #include "comm.h"
 
+
+
 bool checkSerial(){
   return Serial2.available();
 }
@@ -15,11 +17,19 @@ std::pair<char,char> readVictim(){
   vic.second = Serial2.read();
   return vic;
 }
+
+void commBegin(){
+  Serial2.begin();
+}
 #else
 std::pair<char,char> readVictim(){
   std::pair<char,char> vic;
   vic.first = -1;
   vic.second = -1;
   return vic;
+}
+
+void commBegin(){
+  return;
 }
 #endif
