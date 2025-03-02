@@ -51,10 +51,21 @@ void loop(){
   switch(robot.status){
     case TRAVERSING:
     case DANGERZONE:
-      if(!robot.moveDirections(maze.findNextMove())&&robot.status==DANGERZONE) robot.status=BACKTRACKING;
-      maze.updateTile();
+      switch(robot.moveDirections(maze.findNextMove())){
+        case NOMOVES:
+          if(robot.status==DANGERZONE) robot.status = BACKTRACKING;
+          break;
+        case BLACKTILE:
+          maze.maze[robot.pos].black = 1;
+          robot.pos = nextPoint(robot.pos, (Direction)((robot.facing+2)%4)); // return robot's position
+          break;
+        case GOOD:
+          maze.updateTile();
+          break;
+      }
       break;
     case BACKTRACKING:
+      stop_motors(); delay(5000);
       robot.moveDirections(maze.findOrigin());
       robot.status = FINISH;
       break;

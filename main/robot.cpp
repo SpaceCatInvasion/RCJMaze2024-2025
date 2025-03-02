@@ -124,8 +124,20 @@ ReturnError Robot::robotForward(double cm){
       }
     }
 
-    // Add color check
-    forward(30);
+    switch(getColor()){
+      case BLACK:
+        stop_motors(); delay(200);
+        if(getColor()==BLACK){
+          backwardCm(FORWARD_MOVE_SPEED, encToCm(enc));
+          return BLACKTILE;
+        }
+        break;
+      case WHITE:
+      default:
+        forward(FORWARD_MOVE_SPEED);
+        break;
+    }
+    
   }
   stop_motors(); delay(10);
   return GOOD;
@@ -178,9 +190,9 @@ Robot::Robot(){
  * Move the robot in the direction dir
  *
  * @param Direction dir to move towards
- * @return None
+ * @return Error status of movement (e.g. black tile, ramp)
  */
-void Robot::moveRobot(Direction dir){
+ReturnError Robot::moveRobot(Direction dir){
   facing = dir;
   stop_motors(); delay(200);
   turn_to(directionAngle(dir));
@@ -191,30 +203,38 @@ void Robot::moveRobot(Direction dir){
   stop_motors(); delay(1000);
   switch(robotForward(TILE_MOVE_DIST/sin(aToR(sideAlignment())))){
     case RAMP:
-      break;
+      return RAMP;
+    case BLACKTILE:
+      stop_motors(); delay(500);
+      return BLACKTILE;
     case GOOD:
+    default:
       stop_motors(); delay(200);
       turn_to(directionAngle(dir));
       stop_motors(); delay(1000);
       frontAlign();
       backAlign();
-      break;
+      return GOOD;
   }
 }
 /*
  * Move robot on the path denoted by the vector directions
  *
  * @param Vector of the directions to move in
- * @return If there was somewhere to move to
+ * @return Error status of movement (e.g. black tile, no moves left)
  */
-bool Robot::moveDirections(std::vector<Direction> directions){
-  if(directions.empty()) return false;
+ReturnError Robot::moveDirections(std::vector<Direction> directions){
+  if(directions.empty()) return NOMOVES;
   for(Direction d : directions){
-    moveRobot(d);
-    stop_motors(); delay(1000);
     pos = nextPoint(pos, d);
+    ReturnError moveStatus = moveRobot(d);
+    stop_motors(); delay(1000);
+    switch(moveStatus){
+      case BLACKTILE:
+        return moveStatus;
+    }
   }
-  return true;
+  return GOOD;
 }
 
 /*

@@ -16,6 +16,8 @@
 
 #define TILE_MOVE_DIST 28
 
+#define FORWARD_MOVE_SPEED 30
+
 struct Point {
   int x;
   int y;
@@ -43,6 +45,7 @@ enum ReturnError {
   BLACKTILE = 1,
   REDTILE = 2,
   RAMP = 3,
+  NOMOVES = 4
 };
 
 #define BASE_TURN_SPEED 50
@@ -56,8 +59,8 @@ public:
   Direction facing;
   Status status;
   Robot();
-  bool moveDirections(std::vector<Direction> directions);
-  void moveRobot(Direction dir); 
+  ReturnError moveDirections(std::vector<Direction> directions);
+  ReturnError moveRobot(Direction dir); 
   double sideAlignment();
   ReturnError robotForward(double cm);
   ReturnError wallTrace(int cm, int speed); 
