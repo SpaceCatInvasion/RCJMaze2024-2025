@@ -5,4 +5,4 @@ extern Adafruit_BNO055 bno;
 
 int getBNO();
 int roundAngle(int angle);
-int getTilt();
+float getTilt();

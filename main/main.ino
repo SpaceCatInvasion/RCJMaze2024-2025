@@ -3,7 +3,8 @@
 Robot robot;
 Maze maze(&robot);
 
-
+#define RAMP_ON
+#define CAM_OFF
 
 
 void setup(){

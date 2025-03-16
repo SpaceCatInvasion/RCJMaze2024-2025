@@ -14,7 +14,7 @@ struct Tile {
   bool blue : 1;
   bool black : 1;
   bool red : 1;
-  bool NRamp : 1; //meaning robot faces north when entering ramp
+  bool NRamp : 1; //meaning robot faces north when going up ramp
   bool SRamp : 1;
   bool ERamp : 1;
   bool WRamp : 1;
@@ -24,9 +24,10 @@ struct Tile {
 class Maze {
 private:
   bool hasWall(Point p, Direction d);
+  bool hasRamp(Point p, Direction d);
 public:
   std::map<Point,Tile,PointCmp> maze;
-  std::map<Point,Tile,PointCmp> floor2;
+  std::map<Point,Point,PointCmp> rampConnections; // connects first ramp tile to exit flat tile
   Robot* robot;
   Maze(Robot* r);
   std::vector<Direction> findNextMove();

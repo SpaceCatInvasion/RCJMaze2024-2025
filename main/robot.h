@@ -17,14 +17,19 @@
 #define TILE_MOVE_DIST 27
 
 #define FORWARD_MOVE_SPEED 40
+#define RAMP_MOVE_SPEED 60
+#define RAMP_TILT_THRESH 10
+
+#define RAMP_ON
 
 struct Point {
   int x;
   int y;
+  int z;
 };
 struct PointCmp {
   bool operator()(const Point &lhs, const Point &rhs) const {
-    return lhs.x == rhs.x ? lhs.y > rhs.y : lhs.x > rhs.x;
+    return lhs.x == rhs.x ? (lhs.y == rhs.y ? lhs.z > rhs.z : lhs.y > rhs.y) : lhs.x > rhs.x;
   }
 };
 enum Direction {
@@ -58,6 +63,7 @@ public:
   Point pos;
   Direction facing;
   Status status;
+  int floor;
   Robot();
   ReturnError moveDirections(std::vector<Direction> directions);
   ReturnError moveRobot(Direction dir); 
@@ -70,7 +76,7 @@ public:
   void backAlign();
 };
 bool samePoint(Point p1, Point p2);
-Point nextPoint(Point p, Direction d);
+Point nextPoint(Point p, Direction d, int mag = 1);
 int directionAngle(Direction d);
 
 

@@ -3,30 +3,23 @@
 bool samePoint(Point p1, Point p2){
   return (p1.x==p2.x&&p1.y==p2.y);
 }
-Point nextPoint(Point p, Direction d){
-  Point temp;
+Point nextPoint(Point p, Direction d, int mag){
+  Point temp = p;
   switch(d){  
     case NORTH:
-      temp.x=p.x;
-      temp.y=p.y+1;
-      return temp;
+      temp.y+=mag;
+      break;
     case SOUTH:
-      temp.x=p.x;
-      temp.y=p.y-1;
-      return temp;
+      temp.y-=mag;
+      break;
     case EAST:
-      temp.x=p.x+1;
-      temp.y=p.y;
-      return temp;
+      temp.x+=mag;
+      break;
     case WEST:
-      temp.x=p.x-1;
-      temp.y=p.y;
-      return temp;
+      temp.x-=mag;
+      break;
   }
-  Point err;
-  err.x=-100;
-  err.y=-100;
-  return err;
+  return temp;
 }
 
 int directionAngle(Direction d){
@@ -94,7 +87,7 @@ double Robot::sideAlignment(){
     stop_motors(); delay(10);
     return theta;
   }
-  dist=readTOF(RIGHT_TOF)+1; //bias - positive = goes closer to wall
+  dist=readTOF(RIGHT_TOF)+2; //bias - positive = goes closer to wall
   //dist*=dist/3; //exagerates movement - (dist/b)^a decrease a to exagerate less, b is focus of exageration
   dist=dist<0?0.2:dist;
   if(dist < 15 && dist > 0.1){
@@ -115,6 +108,7 @@ double Robot::sideAlignment(){
 ReturnError Robot::robotForward(double cm){
   Serial.print("CM:");Serial.println(cm);
   enc=0;
+  int colorIter = 0;
   while(enc<cmToEnc(cm)){
     if(checkSerial()){ // camera check - replace later with interrupt
       clearSerial();
@@ -124,7 +118,31 @@ ReturnError Robot::robotForward(double cm){
       }
     }
 
-    switch(getColor()){
+#ifdef RAMP_ON
+    // Serial.print("Ramp Tilt: "); Serial.println(abs(getTilt()));
+    if(abs(getTilt())>RAMP_TILT_THRESH){
+      stop_motors(); while(digitalRead(20)==HIGH);
+      Serial.println("Going up ramp...");
+      enc = 0;
+      double distForward = 0; // x dist forward
+      int prevEnc = 0;
+      float angle = getTilt();
+      int calcIter = 0;
+      while(abs(getTilt())>RAMP_TILT_THRESH){
+        if(!(calcIter++%10)){
+          forward(RAMP_MOVE_SPEED*(1+0.02*(angle-20)));
+          distForward+=encToCm(enc-prevEnc)*cos((aToR(angle=getTilt())));
+          Serial.print("Enc: "); Serial.print(enc); Serial.print(" Prev: "); Serial.print(prevEnc);Serial.print(" Angle: "); Serial.print(angle); Serial.print(" Cos: "); Serial.println(cos(aToR(angle)));
+          prevEnc=enc;
+        }
+      }
+      distForward*=1.07; // tested error
+      Serial.println(distForward);
+      stop_motors(); delay(10000000); // finish later
+    }
+#endif
+    if(!(colorIter++%25)){
+      switch(getColor()){
       case BLACK:
         stop_motors(); delay(200);
         if(getColor()==BLACK){
@@ -145,6 +163,7 @@ ReturnError Robot::robotForward(double cm){
       default:
         forward(FORWARD_MOVE_SPEED);
         break;
+      }
     }
     
   }
@@ -191,8 +210,10 @@ void Robot::backAlign(){
 Robot::Robot(){
   pos.x = 0;
   pos.y = 0;
+  pos.z = 0;
   facing = NORTH;
   status = TRAVERSING;
+  floor = 0;
 }
 
 /*

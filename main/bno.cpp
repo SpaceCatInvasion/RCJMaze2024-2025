@@ -17,8 +17,8 @@ int roundAngle(int angle){
 }
 
 // Get BNO z rotation
-int getTilt(){
+float getTilt(){
   sensors_event_t event;
   bno.getEvent(&event);
-  return -event.orientation.z;
+  return event.orientation.z;
 }
