@@ -33,5 +33,6 @@ public:
   std::vector<Direction> findNextMove();
   std::vector<Direction> findOrigin();
   void updateTile(); 
+  void AddRamp(Point p, Direction d);
 };
 void clearTile(Tile*t);

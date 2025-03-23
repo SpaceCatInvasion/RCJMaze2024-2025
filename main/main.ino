@@ -5,6 +5,8 @@ Maze maze(&robot);
 
 #define RAMP_ON
 #define CAM_OFF
+#define OLD_BOT
+// #define NEW_BOT
 
 
 void setup(){
@@ -50,7 +52,7 @@ void loop(){
 
   // std::vector<Direction> directions = {NORTH, NORTH, EAST, EAST, SOUTH, SOUTH, WEST, WEST}; 
   // robot.moveDirections(directions);
-
+  Serial.print("At point "); printPoint(robot.pos);
   switch(robot.status){
     case TRAVERSING:
     case DANGERZONE:
@@ -66,6 +68,20 @@ void loop(){
           maze.maze[robot.pos].red = 1;
           robot.pos = nextPoint(robot.pos, (Direction)((robot.facing+2)%4)); // return robot's position
           break;
+        case RAMP:
+        {
+          Point flatExit = nextPoint(robot.pos, robot.facing, rampTilesForward);
+          if(incline) flatExit.z++;
+          else flatExit.z--;
+          Point finalRamp = nextPoint(flatExit, (Direction)((robot.facing+2)%4));
+          maze.rampConnections[robot.pos] = flatExit;
+          maze.rampConnections[finalRamp] = nextPoint(robot.pos, (Direction)((robot.facing+2)%4));
+          maze.AddRamp(finalRamp,(Direction)((robot.facing+2)%4));
+          maze.AddRamp(robot.pos, robot.facing);
+          robot.pos = flatExit;
+          maze.updateTile();
+          break;
+        }
         case GOOD:
           maze.updateTile();
           break;
@@ -77,6 +93,8 @@ void loop(){
       robot.status = FINISH;
       break;
   }
+  Serial.print("Ended at point "); printPoint(robot.pos);
+
 }
 
 // void setup1(){

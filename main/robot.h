@@ -8,13 +8,26 @@
 #include "comm.h"
 #include "dropper.h"
 
+
+#ifdef NEW_BOT
 #define WIDTH 12.15
 #define ENC_PER_ROT 230
 #define WHEELDIA 7.4
 #define TOF_WIDTH 12.55
 #define FRONTBACKTOF 17.6
 
+#else
+#define WIDTH 12.15
+#define ENC_PER_ROT 230
+#define WHEELDIA 7.4
+#define TOF_WIDTH 12.55
+#define FRONTBACKTOF 17.6
+#endif
+
 #define TILE_MOVE_DIST 27
+#define TILE_LENGTH 30
+extern int rampTilesForward;
+extern bool incline;
 
 #define FORWARD_MOVE_SPEED 40
 #define RAMP_MOVE_SPEED 60
@@ -78,5 +91,5 @@ public:
 bool samePoint(Point p1, Point p2);
 Point nextPoint(Point p, Direction d, int mag = 1);
 int directionAngle(Direction d);
-
+void printPoint(Point p);
 

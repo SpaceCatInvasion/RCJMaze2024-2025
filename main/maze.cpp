@@ -172,25 +172,34 @@ std::vector<Direction> Maze::findOrigin(){
       }
       break;
     }
+    
     Point next = nextPoint(p,robot->facing);
+    if(hasRamp(next,robot->facing)||hasRamp(next,(Direction)((robot->facing+2)%4))) //check if ramp exists
+      next = rampConnections[next];
     if(!hasWall(p,robot->facing)&&!bfsVisited[next]&&!maze[next].black){ // Check if the tile infront is valid
       q.push(next);
       if(paths.count(next)==0) paths[next] = p;
       bfsVisited[next] = 1;
     } 
     next = nextPoint(p,(Direction)((robot->facing+1)%4));
+    if(hasRamp(next,(Direction)((robot->facing+1)%4))||hasRamp(next,(Direction)((robot->facing+3)%4)))
+      next = rampConnections[next];
     if(!hasWall(p,(Direction)((robot->facing+1)%4))&&!bfsVisited[next]&&!maze[next].black) {
       q.push(next);
       if(paths.count(next)==0) paths[next] = p;
       bfsVisited[next] = 1;
     }
     next = nextPoint(p,(Direction)((robot->facing+3)%4));
+    if(hasRamp(next,(Direction)((robot->facing+3)%4))||hasRamp(next,(Direction)((robot->facing+1)%4)))
+      next = rampConnections[next];
     if(!hasWall(p,(Direction)((robot->facing+3)%4))&&!bfsVisited[next]&&!maze[next].black) {
       q.push(next);
       if(paths.count(next)==0) paths[next] = p;
       bfsVisited[next] = 1;
     }
     next = nextPoint(p,(Direction)((robot->facing+2)%4));
+    if(hasRamp(next,(Direction)((robot->facing+2)%4))||hasRamp(next,robot->facing))
+      next = rampConnections[next];
     if(!hasWall(p,(Direction)((robot->facing+2)%4))&&!bfsVisited[next]&&!maze[next].black) {
       q.push(next);
       if(paths.count(next)==0) paths[next] = p;
@@ -251,4 +260,21 @@ void Maze::updateTile(){
     maze[nextPoint(robot->pos,EAST)].WWall=1;
   }
   maze[robot->pos].visited=1;
+}
+
+void Maze::AddRamp(Point p, Direction d){
+  switch(d){
+    case NORTH:
+      maze[p].NRamp = 1;
+      break;
+    case SOUTH:
+      maze[p].SRamp = 1;
+      break;
+    case EAST:
+      maze[p].ERamp = 1;
+      break;
+    case WEST:
+      maze[p].WRamp = 1;
+      break;
+  }
 }

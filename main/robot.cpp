@@ -1,5 +1,8 @@
 #include "robot.h"
 
+int rampTilesForward = 0;
+bool incline = false;
+
 bool samePoint(Point p1, Point p2){
   return (p1.x==p2.x&&p1.y==p2.y);
 }
@@ -121,24 +124,44 @@ ReturnError Robot::robotForward(double cm){
 #ifdef RAMP_ON
     // Serial.print("Ramp Tilt: "); Serial.println(abs(getTilt()));
     if(abs(getTilt())>RAMP_TILT_THRESH){
-      stop_motors(); while(digitalRead(20)==HIGH);
-      Serial.println("Going up ramp...");
+      
+      if(getTilt()>0) {
+        Serial.println("Going up ramp...");
+        incline = true;
+      }
+      else {
+        Serial.println("Going down ramp...");
+        incline = false;
+        // stop_motors(); delay(2000);
+        // int tempAngle;
+        // while((tempAngle=getTilt())<-5) backward(RAMP_MOVE_SPEED*(1-0.04*(tempAngle+15)));
+        // while(getTilt()>-1*RAMP_TILT_THRESH) forward(20);
+      }
+      // stop_motors(); delay(500);// while(digitalRead(20)==HIGH);
       enc = 0;
       double distForward = 0; // x dist forward
       int prevEnc = 0;
       float angle = getTilt();
       int calcIter = 0;
-      while(abs(getTilt())>RAMP_TILT_THRESH){
+      while((abs(getTilt()))>RAMP_TILT_THRESH){
         if(!(calcIter++%10)){
-          forward(RAMP_MOVE_SPEED*(1+0.02*(angle-20)));
+          forward(RAMP_MOVE_SPEED*(1+0.01*(angle-20))); // PID
           distForward+=encToCm(enc-prevEnc)*cos((aToR(angle=getTilt())));
           Serial.print("Enc: "); Serial.print(enc); Serial.print(" Prev: "); Serial.print(prevEnc);Serial.print(" Angle: "); Serial.print(angle); Serial.print(" Cos: "); Serial.println(cos(aToR(angle)));
           prevEnc=enc;
         }
       }
       distForward*=1.07; // tested error
-      Serial.println(distForward);
-      stop_motors(); delay(10000000); // finish later
+      if(!incline) distForward += 10;
+      Serial.print("Dist forward: "); Serial.println(distForward);
+      rampTilesForward = distForward/30;
+      if((int)distForward%TILE_LENGTH>15) rampTilesForward++;
+      while(abs(getTilt())>3){
+        forward(RAMP_MOVE_SPEED*(.4+0.02*(angle)));
+      }
+      forwardCm(30,5);
+      stop_motors(); delay(500);
+      return RAMP;
     }
 #endif
     if(!(colorIter++%25)){
@@ -233,6 +256,7 @@ ReturnError Robot::moveRobot(Direction dir){
   stop_motors(); delay(200);
   switch(robotForward(TILE_MOVE_DIST/sin(aToR(sideAlignment())))){
     case RAMP:
+      stop_motors(); delay(500);
       return RAMP;
     case BLACKTILE:
       stop_motors(); delay(500);
@@ -263,6 +287,7 @@ ReturnError Robot::moveDirections(std::vector<Direction> directions){
     ReturnError moveStatus = moveRobot(d);
     stop_motors(); delay(200);
     switch(moveStatus){
+      case RAMP:
       case REDTILE:
       case BLACKTILE:
         return moveStatus;
@@ -302,4 +327,8 @@ void Robot::turn_to(int deg){
  */
 void Robot::turn(int deg){
   turn_to(deg + getBNO());
+}
+
+void printPoint(Point p){
+  Serial.print("("); Serial.print(p.x); Serial.print(","); Serial.print(p.y); Serial.print(","); Serial.print(p.z); Serial.println(")");
 }
