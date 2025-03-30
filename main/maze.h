@@ -34,5 +34,6 @@ public:
   std::vector<Direction> findOrigin();
   void updateTile(); 
   void AddRamp(Point p, Direction d);
+  void AddWall(Point p, Direction d);
 };
 void clearTile(Tile*t);

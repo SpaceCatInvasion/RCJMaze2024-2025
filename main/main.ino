@@ -78,6 +78,10 @@ void loop(){
           maze.rampConnections[finalRamp] = nextPoint(robot.pos, (Direction)((robot.facing+2)%4));
           maze.AddRamp(finalRamp,(Direction)((robot.facing+2)%4));
           maze.AddRamp(robot.pos, robot.facing);
+          maze.AddWall(robot.pos, (Direction)((robot.facing+1)%4));
+          maze.AddWall(robot.pos, (Direction)((robot.facing+3)%4));
+          maze.AddWall(finalRamp, (Direction)((robot.facing+1)%4));
+          maze.AddWall(finalRamp, (Direction)((robot.facing+3)%4));
           robot.pos = flatExit;
           maze.updateTile();
           break;
@@ -88,10 +92,13 @@ void loop(){
       }
       break;
     case BACKTRACKING:
+      Serial.println("Backtracking");
       stop_motors(); delay(5000);
       robot.moveDirections(maze.findOrigin());
       robot.status = FINISH;
       break;
+    case FINISH:
+      stop_motors();
   }
   Serial.print("Ended at point "); printPoint(robot.pos);
 

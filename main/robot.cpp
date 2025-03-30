@@ -132,10 +132,6 @@ ReturnError Robot::robotForward(double cm){
       else {
         Serial.println("Going down ramp...");
         incline = false;
-        // stop_motors(); delay(2000);
-        // int tempAngle;
-        // while((tempAngle=getTilt())<-5) backward(RAMP_MOVE_SPEED*(1-0.04*(tempAngle+15)));
-        // while(getTilt()>-1*RAMP_TILT_THRESH) forward(20);
       }
       // stop_motors(); delay(500);// while(digitalRead(20)==HIGH);
       enc = 0;
@@ -156,7 +152,7 @@ ReturnError Robot::robotForward(double cm){
       Serial.print("Dist forward: "); Serial.println(distForward);
       rampTilesForward = distForward/30;
       if((int)distForward%TILE_LENGTH>15) rampTilesForward++;
-      while(abs(getTilt())>3){
+      while(abs(getTilt())>5){
         forward(RAMP_MOVE_SPEED*(.4+0.02*(angle)));
       }
       forwardCm(30,5);
@@ -201,6 +197,7 @@ ReturnError Robot::robotForward(double cm){
  * @return None
  */
 void Robot::frontAlign(){
+  Serial.println("Front Aligning");
   int dist = readTOF(FRONT_TOF);
   while(dist<15&&dist>(30-FRONTBACKTOF)/2){
     forward(20);
@@ -210,6 +207,7 @@ void Robot::frontAlign(){
     backward(20);
     dist=readTOF(FRONT_TOF);
   }
+  Serial.println("Front Aligning Done");
 }
 /*
  * Align the robot with the back TOF
@@ -218,6 +216,7 @@ void Robot::frontAlign(){
  * @return None
  */
 void Robot::backAlign(){
+  Serial.println("Back Aligning");
   int dist = readTOF(BACK_TOF);
   while(dist<15&&dist>(30-FRONTBACKTOF)/2){
     backward(20);
@@ -227,6 +226,7 @@ void Robot::backAlign(){
     forward(20);
     dist=readTOF(BACK_TOF);
   }
+  Serial.println("Back Aligning Done");
 }
 
 

@@ -278,3 +278,25 @@ void Maze::AddRamp(Point p, Direction d){
       break;
   }
 }
+
+void Maze::AddWall(Point p, Direction d){
+  Point next = nextPoint(p,d);
+  switch(d){
+    case NORTH:
+      maze[p].NWall = 1;
+      maze[next].SWall = 1;
+      break;
+    case SOUTH:
+      maze[p].SWall= 1;
+      maze[next].NWall = 1;
+      break;
+    case EAST:
+      maze[p].EWall = 1;
+      maze[next].WWall = 1;
+      break;
+    case WEST:
+      maze[p].WWall = 1;
+      maze[next].EWall = 1;
+      break;
+  }
+}
