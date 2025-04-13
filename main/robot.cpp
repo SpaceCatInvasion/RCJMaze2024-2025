@@ -264,7 +264,7 @@ ReturnError Robot::moveRobot(Direction dir){
   Serial.println(abs(enc));
   delay(10);
   switch(robotForward(TILE_MOVE_DIST/sin(aToR(sideAlignment())))){
-    Serial.println(abs(enc));
+   // Serial.println(abs(enc));
     case RAMP:
       stop_motors(); delay(500);
       return RAMP;
