@@ -29,7 +29,7 @@
 extern int rampTilesForward;
 extern bool incline;
 
-#define FORWARD_MOVE_SPEED 40
+#define FORWARD_MOVE_SPEED 80
 #define RAMP_MOVE_SPEED 60
 #define RAMP_TILT_THRESH 10
 

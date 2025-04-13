@@ -112,7 +112,11 @@ ReturnError Robot::robotForward(double cm){
   Serial.print("CM:");Serial.println(cm);
   enc=0;
   int colorIter = 0;
-  while(enc<cmToEnc(cm)){
+  Serial.print("enc: ");
+  Serial.println(enc);
+  while(abs(enc)<abs(cmToEnc(cm))){
+    Serial.print("enc: ");
+    Serial.println(enc);
     if(checkSerial()){ // camera check - replace later with interrupt
       clearSerial();
       stop_motors(); delay(500);
@@ -185,7 +189,9 @@ ReturnError Robot::robotForward(double cm){
       }
     }
     
+    
   }
+  enc = 0;
   stop_motors(); delay(10);
   return GOOD;
 }
@@ -254,7 +260,11 @@ ReturnError Robot::moveRobot(Direction dir){
   backAlign();
   turn_to(directionAngle(dir));
   stop_motors(); delay(200);
+  Serial.println("rcj done");
+  Serial.println(abs(enc));
+  delay(10);
   switch(robotForward(TILE_MOVE_DIST/sin(aToR(sideAlignment())))){
+    Serial.println(abs(enc));
     case RAMP:
       stop_motors(); delay(500);
       return RAMP;

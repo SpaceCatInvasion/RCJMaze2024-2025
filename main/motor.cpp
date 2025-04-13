@@ -2,10 +2,10 @@
 
 //Motor m(11,10);
 
-Motor frontLeft(15,14);
-Motor frontRight(12,13);
-Motor backLeft(10,11);
-Motor backRight(9,8);
+Motor frontLeft(10,11);
+Motor frontRight(8,9);
+Motor backLeft(13,12);
+Motor backRight(15,14);
 
 volatile int enc = 0;
 void enc_update(){
@@ -23,10 +23,15 @@ void rmotors(int speed){
   frontRight.speed(-speed);
   backRight.speed(speed);
 }
+
 void forward(int speed){
+  Serial.print("encs: ");
+  Serial.println(enc);
   lmotors(speed);
   rmotors(speed);
 }
+
+
 void backward(int speed){
   lmotors(-speed);
   rmotors(-speed);

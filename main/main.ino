@@ -25,8 +25,17 @@ void setup(){
   Wire.setSCL(29);
   Wire.setSDA(28);
   Wire.begin();
+
+  Wire1.setSCL(27);
+  Wire1.setSDA(26);
+  Wire1.begin();
+
+  Serial.println(" i2c ready");
+
   
   tofInit();
+
+Serial.println(" tof ready");
 
   // Wire1.setSCL(27);
   // Wire1.setSDA(26);

@@ -12,6 +12,7 @@ void enc_update();
 void lmotors(int speed);
 void rmotors(int speed);
 void forward(int speed);
+void forward(int lspeed, int rspeed, bool x);
 void backward(int speed);
 void stop_motors();
 
