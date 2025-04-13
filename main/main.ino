@@ -5,8 +5,8 @@ Maze maze(&robot);
 
 #define RAMP_ON
 #define CAM_OFF
-#define OLD_BOT
-// #define NEW_BOT
+// #define OLD_BOT
+#define NEW_BOT
 
 
 void setup(){
