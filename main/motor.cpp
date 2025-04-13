@@ -2,10 +2,10 @@
 
 //Motor m(11,10);
 
-Motor frontLeft(10,11);
+Motor frontLeft(11,10);
 Motor frontRight(8,9);
 Motor backLeft(13,12);
-Motor backRight(15,14);
+Motor backRight(14,15);
 
 volatile int enc = 0;
 void enc_update(){

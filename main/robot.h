@@ -11,7 +11,7 @@
 
 #ifdef NEW_BOT
 #define WIDTH 12.6
-#define ENC_PER_ROT 230
+#define ENC_PER_ROT 210
 #define WHEELDIA 7.4
 #define TOF_WIDTH 12.2
 #define FRONTBACKTOF 19.9
