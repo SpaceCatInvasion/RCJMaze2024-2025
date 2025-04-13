@@ -1,5 +1,6 @@
 #include "maze.h"
 #include "Wire.h"
+#include "comm.h"
 Robot robot;
 Maze maze(&robot);
 
@@ -43,6 +44,7 @@ void setup(){
   }
   colorBegin();
   commBegin();
+  servoBegin();
 
   maze.updateTile();
   enc=0;

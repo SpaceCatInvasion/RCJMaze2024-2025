@@ -5,8 +5,6 @@
 #include "motor.h"
 #include <math.h>
 #include "color.h"
-#include "comm.h"
-#include "dropper.h"
 
 
 #ifdef NEW_BOT
