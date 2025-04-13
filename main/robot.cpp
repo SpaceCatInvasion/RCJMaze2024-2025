@@ -184,7 +184,11 @@ ReturnError Robot::robotForward(double cm){
         }
       case WHITE:
       default:
-        forward(FORWARD_MOVE_SPEED);
+        #ifdef OBSTALCE_ON
+          forward(FORWARD_MOVE_SPEED + getOffsetDueToObject());
+        #else
+          forward(FORWARD_MOVE_SPEED);
+        #endif
         break;
       }
     }
@@ -264,7 +268,11 @@ ReturnError Robot::moveRobot(Direction dir){
   // Serial.println(abs(enc));
   // delay(10);
   switch(robotForward(TILE_MOVE_DIST/sin(aToR(sideAlignment())))){
+<<<<<<< HEAD
     // Serial.println(abs(enc));
+=======
+   // Serial.println(abs(enc));
+>>>>>>> d326abf5cf5ad776e1a2fbda035f7c8bef7fc42e
     case RAMP:
       stop_motors(); delay(500);
       return RAMP;
