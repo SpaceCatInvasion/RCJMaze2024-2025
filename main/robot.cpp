@@ -117,13 +117,7 @@ ReturnError Robot::robotForward(double cm){
   while(enc<cmToEnc(cm)){
     // Serial.print("enc: ");
     // Serial.println(enc);
-    if(checkSerial()){ // camera check - replace later with interrupt
-      clearSerial();
-      stop_motors(); delay(500);
-      if(checkSerial()) {
-        drop(readVictim());
-      }
-    }
+   
 
 #ifdef RAMP_ON
     // Serial.print("Ramp Tilt: "); Serial.println(abs(getTilt()));
@@ -269,11 +263,8 @@ ReturnError Robot::moveRobot(Direction dir){
   // Serial.println(abs(enc));
   // delay(10);
   switch(robotForward(TILE_MOVE_DIST/sin(aToR(sideAlignment())))){
-<<<<<<< HEAD
     // Serial.println(abs(enc));
-=======
    // Serial.println(abs(enc));
->>>>>>> d326abf5cf5ad776e1a2fbda035f7c8bef7fc42e
     case RAMP:
       stop_motors(); delay(500);
       return RAMP;

@@ -35,20 +35,13 @@ void setup(){
 
   
   tofInit();
-
-Serial.println(" tof ready");
-
-  // Wire1.setSCL(27);
-  // Wire1.setSDA(26);
-  // Wire1.begin();
+  Serial.println(" tof ready");
 
   if(!bno.begin(OPERATION_MODE_IMUPLUS)){
     Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
     while (1);
   }
-
   colorBegin();
-
   commBegin();
 
   maze.updateTile();
