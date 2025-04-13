@@ -184,14 +184,15 @@ ReturnError Robot::robotForward(double cm){
         }
       case WHITE:
       default:
-        #ifdef OBSTALCE_ON
-          forward(FORWARD_MOVE_SPEED + getOffsetDueToObject());
-        #else
-          forward(FORWARD_MOVE_SPEED);
-        #endif
+        
         break;
       }
     }
+#ifdef OBSTALCE_ON
+    forward(FORWARD_MOVE_SPEED + getOffsetDueToObject());
+#else
+    forward(FORWARD_MOVE_SPEED);
+#endif
     
     
   }
