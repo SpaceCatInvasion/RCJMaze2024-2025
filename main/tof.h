@@ -1,7 +1,6 @@
 #pragma once
 #include "Adafruit_VL53L0X.h"
 #include "Wire.h"
-#include <vl53l7cx_class.h>
 
 
 extern Adafruit_VL53L0X tof;
