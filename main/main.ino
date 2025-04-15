@@ -45,6 +45,7 @@ void setup(){
   colorBegin();
   commBegin();
   servoBegin();
+  pinMode(LED_PIN, OUTPUT);
 
   maze.updateTile();
   enc=0;

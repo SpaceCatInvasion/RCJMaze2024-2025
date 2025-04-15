@@ -9,6 +9,7 @@ void interruptFunc(){
   char vic = (char)Serial1.read();
   
   drop(side,vic);
+  blink();
 }
 
 void commBegin(){
