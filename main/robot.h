@@ -34,9 +34,9 @@ extern bool incline;
 #define RAMP_ON
 
 struct Point {
-  int x;
-  int y;
-  int z;
+  char x;
+  char y;
+  char z;
 };
 struct PointCmp {
   bool operator()(const Point &lhs, const Point &rhs) const {
@@ -74,7 +74,6 @@ public:
   Point pos;
   Direction facing;
   Status status;
-  int floor;
   Robot();
   ReturnError moveDirections(std::vector<Direction> directions);
   ReturnError moveRobot(Direction dir);
@@ -85,6 +84,7 @@ public:
   void turn(int deg);
   void frontAlign();
   void backAlign();
+  void print();
 };
 bool samePoint(Point p1, Point p2);
 Point nextPoint(Point p, Direction d, int mag = 1);

@@ -1,6 +1,6 @@
 #include "fileIO.h"
 
-void uploadMaze(Maze m) {
+void uploadMaze(Maze *m) {
   File outfile = LittleFS.open(filename, "w");
   if (!outfile) {                         // if failed - maybe forgot to set the Filesystem in IDE
     Serial.println("fail open outfile");  // or didn't call LittleFS.begin()
@@ -10,14 +10,14 @@ void uploadMaze(Maze m) {
   Serial.println("Writing to file...");
   // print robot
   char robot[5];  // x,y,z,facing,status
-  robot[0] = (char)(m.robot->pos.x);
-  robot[1] = (char)(m.robot->pos.y);
-  robot[2] = (char)(m.robot->pos.z);
+  robot[0] = (char)(m->robot->pos.x);
+  robot[1] = (char)(m->robot->pos.y);
+  robot[2] = (char)(m->robot->pos.z);
 
-  robot[3] = (char)(m.robot->facing);
-  robot[4] = (char)(m.robot->status);
+  robot[3] = (char)(m->robot->facing);
+  robot[4] = (char)(m->robot->status);
   outfile.write(robot, strlen(robot));
-  for (std::pair<Point, Tile> tiles : m.maze) {  // print maze
+  for (std::pair<Point, Tile> tiles : m->maze) {  // print maze
     char ch[5];                                  // x,y,z,Tile high byte,Tile low byte
     ch[0] = (char)(tiles.first.x);
     ch[1] = (char)(tiles.first.y);
@@ -37,4 +37,12 @@ void downloadMaze(Maze *m) {
   }
   Serial.println("Reading from file...");
   if (!infile.available()) return;
+  char robot[5];
+  infile.readBytes(robot, sizeof(robot)/sizeof(robot[0]));
+  m->robot->pos.x=robot[0];
+  m->robot->pos.x=robot[1];
+  m->robot->pos.x=robot[2];
+
+  m->robot->facing=(Direction)robot[3];
+  m->robot->status=(Status)robot[4];
 }

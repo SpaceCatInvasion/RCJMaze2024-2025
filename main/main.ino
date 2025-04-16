@@ -54,6 +54,9 @@ void setup() {
   pinMode(LED_PIN, OUTPUT);
   Serial.println(" led ready");
 
+  LittleFS.begin();
+  Serial.println(" file system ready");
+
   maze.updateTile();
   enc = 0;
   Serial.println("Ready to start");

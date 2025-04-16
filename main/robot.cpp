@@ -256,7 +256,6 @@ Robot::Robot() {
   pos.z = 0;
   facing = NORTH;
   status = TRAVERSING;
-  floor = 0;
 }
 
 /*
@@ -361,6 +360,26 @@ void Robot::turn_to(int deg) {
  */
 void Robot::turn(int deg) {
   turn_to(deg + getBNO());
+}
+
+void Robot::print(){
+  switch(status){
+    case TRAVERSING: Serial.print("Traversing... "); break;
+    case DANGERZONE: Serial.print("In Danger Zone... "); break;
+    case BACKTRACKING: Serial.print("Backtracking... "); break;
+    case FINISH: Serial.print("Finished! "); break;
+    case END: Serial.print("Run over... "); break;
+  }
+  Serial.print("Robot at ("); 
+  Serial.print(pos.x); Serial.print(","); Serial.print(pos.y); Serial.print(","); Serial.print(pos.z); 
+  Serial.print(") facing ");
+  switch(facing){
+    case NORTH: Serial.print("North"); break;
+    case SOUTH: Serial.print("South"); break;
+    case EAST: Serial.print("East"); break;
+    case WEST: Serial.print("West"); break;
+  }
+  Serial.println();
 }
 
 void printPoint(Point p) {
