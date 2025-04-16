@@ -1,5 +1,5 @@
 #include "dropper.h"
 
-void drop(char side, char vic){
+void drop(char side, char vic) {
   return;
 }

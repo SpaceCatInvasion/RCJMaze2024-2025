@@ -69,7 +69,7 @@ enum ReturnError {
 
 class Robot {
 private:
-  
+
 public:
   Point pos;
   Direction facing;
@@ -77,10 +77,10 @@ public:
   int floor;
   Robot();
   ReturnError moveDirections(std::vector<Direction> directions);
-  ReturnError moveRobot(Direction dir); 
+  ReturnError moveRobot(Direction dir);
   double sideAlignment();
   ReturnError robotForward(double cm);
-  ReturnError wallTrace(int cm, int speed); 
+  ReturnError wallTrace(int cm, int speed);
   void turn_to(int deg);
   void turn(int deg);
   void frontAlign();
@@ -90,4 +90,3 @@ bool samePoint(Point p1, Point p2);
 Point nextPoint(Point p, Direction d, int mag = 1);
 int directionAngle(Direction d);
 void printPoint(Point p);
-

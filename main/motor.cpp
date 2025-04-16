@@ -2,29 +2,29 @@
 
 //Motor m(11,10);
 
-Motor frontLeft(11,10);
-Motor frontRight(8,9);
-Motor backLeft(13,12);
-Motor backRight(14,15);
+Motor frontLeft(10, 11);
+Motor frontRight(9, 8);
+Motor backLeft(12, 13);
+Motor backRight(15, 14);
 
 volatile int enc = 0;
-void enc_update(){
-  if(digitalRead(ENC_PIN)==HIGH)
-    enc++;
-  else
+void enc_update() {
+  if (digitalRead(ENC_PIN) == HIGH)
     enc--;
+  else
+    enc++;
 }
 
-void lmotors(int speed){
-  frontLeft.speed(speed);
-  backLeft.speed(-speed);
+void lmotors(int speed) {
+  frontLeft.speed(-speed);
+  backLeft.speed(speed);
 }
-void rmotors(int speed){
-  frontRight.speed(-speed);
-  backRight.speed(speed);
+void rmotors(int speed) {
+  frontRight.speed(speed);
+  backRight.speed(-speed);
 }
 
-void forward(int speed){
+void forward(int speed) {
   // Serial.print("encs: ");
   // Serial.println(enc);
   lmotors(speed);
@@ -32,47 +32,46 @@ void forward(int speed){
 }
 
 
-void backward(int speed){
+void backward(int speed) {
   lmotors(-speed);
   rmotors(-speed);
 }
-void stop_motors(){
+void stop_motors() {
   lmotors(0);
   rmotors(0);
 }
 
-void forwardCm(int speed, int cm){
-  enc=0;
-  while(encToCm(enc)<cm){
+void forwardCm(int speed, int cm) {
+  enc = 0;
+  while (encToCm(enc) < cm) {
     forward(speed);
   }
 }
-void backwardCm(int speed, int cm){
+void backwardCm(int speed, int cm) {
   enc = 0;
-  while(encToCm(enc)>-cm){
+  while (encToCm(enc) > -cm) {
     backward(speed);
   }
 }
 
-int cmToEnc(double cm){
-  return cm*ENC_PER_ROT/(PI*WHEELDIA);
+int cmToEnc(double cm) {
+  return cm * ENC_PER_ROT / (PI * WHEELDIA);
 }
-double encToCm(int enc){
-  return enc*PI*WHEELDIA/ENC_PER_ROT;
+double encToCm(int enc) {
+  return enc * PI * WHEELDIA / ENC_PER_ROT;
 }
 
-void Motor::speed(int percent){
+void Motor::speed(int percent) {
   int speed = abs(percent) * 255 / 100;
-  if(percent>0){
-    analogWrite(fpin,speed);
-    analogWrite(rpin,0);
-  }
-  else{
-    analogWrite(fpin,0);
-    analogWrite(rpin,speed);
+  if (percent > 0) {
+    analogWrite(fpin, speed);
+    analogWrite(rpin, 0);
+  } else {
+    analogWrite(fpin, 0);
+    analogWrite(rpin, speed);
   }
 }
-Motor::Motor(int f, int r){
-  fpin=f;
-  rpin=r;
+Motor::Motor(int f, int r) {
+  fpin = f;
+  rpin = r;
 }

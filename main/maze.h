@@ -41,14 +41,14 @@ private:
   bool hasWall(Point p, Direction d);
   bool hasRamp(Point p, Direction d);
 public:
-  std::map<Point,Tile,PointCmp> maze;
-  std::map<Point,Point,PointCmp> rampConnections; // connects first ramp tile to exit flat tile
+  std::map<Point, Tile, PointCmp> maze;
+  std::map<Point, Point, PointCmp> rampConnections;  // connects first ramp tile to exit flat tile
   Robot* robot;
   Maze(Robot* r);
   std::vector<Direction> findNextMove();
   std::vector<Direction> findOrigin();
-  void updateTile(); 
+  void updateTile();
   void AddRamp(Point p, Direction d);
   void AddWall(Point p, Direction d);
 };
-void clearTile(Tile*t);
+void clearTile(Tile* t);

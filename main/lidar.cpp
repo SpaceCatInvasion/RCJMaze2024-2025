@@ -11,8 +11,6 @@ void lidarInit() {
   sensor_vl53l7cx_top.init_sensor((uint8_t)0x52);
   sensor_vl53l7cx_top.vl53l7cx_set_resolution(RES8);
   sensor_vl53l7cx_top.vl53l7cx_start_ranging();
-  
-
 }
 
 double getOffsetDueToObject() {
@@ -70,16 +68,16 @@ double getOffsetDueToObject() {
           if ((long)Results.distance_mm[(VL53L7CX_NB_TARGET_PER_ZONE * (j + k)) + l] < 60) {
             Serial.print("Close detect: ");
             Serial.print((VL53L7CX_NB_TARGET_PER_ZONE * (j + k)) + l);
-            switch((VL53L7CX_NB_TARGET_PER_ZONE * (j + k)) + l) {
+            switch ((VL53L7CX_NB_TARGET_PER_ZONE * (j + k)) + l) {
               case 2:
                 addition += 8;
-              case 3: 
+              case 3:
                 addition += 12;
-              case 4: 
+              case 4:
                 addition += 15;
               case 5:
                 addition -= 15;
-              case 6: 
+              case 6:
                 addition -= 12;
               case 7:
                 addition -= 8;
@@ -99,5 +97,5 @@ double getOffsetDueToObject() {
     SerialPort.print("\n");
     */
   }
-    return addition;
+  return addition;
 }

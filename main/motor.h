@@ -1,12 +1,11 @@
 #pragma once
 #include "robot.h"
+#include "pins.h"
 
 #define kP 5
 #define kD 1
 
 extern volatile int enc;
-#define ENC_PIN_INTER 17
-#define ENC_PIN 16
 void enc_update();
 
 void lmotors(int speed);
@@ -19,8 +18,8 @@ void stop_motors();
 void forwardCm(int speed, int cm);
 void backwardCm(int speed, int cm);
 
- int cmToEnc(double cm);
- double encToCm(int enc);
+int cmToEnc(double cm);
+double encToCm(int enc);
 
 class Motor {
 public:
