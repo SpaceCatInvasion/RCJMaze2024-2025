@@ -217,11 +217,16 @@ std::vector<Direction> Maze::findOrigin(){
  */
 void Maze::updateTile(){
   bool wallN, wallS, wallE, wallW;
+  Serial.println("getting vals");
   switch(robot->facing){
     case NORTH:
+      Serial.println("north");
       wallN = readTOF(FRONT_TOF)<MIN_DIST;
+      Serial.println("south");
       wallS = readTOF(BACK_TOF)<MIN_DIST;
+      Serial.println("east");
       wallE = readTOF(RIGHT_TOF)<MIN_DIST;
+      Serial.println("west");
       wallW = readTOF(LEFT_TOF)<MIN_DIST;
       break;
     case SOUTH:
@@ -243,6 +248,7 @@ void Maze::updateTile(){
       wallS = readTOF(LEFT_TOF)<MIN_DIST;
       break;
   }
+  Serial.println("got vals");
   if(wallN){
     maze[robot->pos].NWall=1;
     maze[nextPoint(robot->pos,NORTH)].SWall=1;

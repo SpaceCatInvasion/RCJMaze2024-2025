@@ -25,9 +25,16 @@ void tofInit(){
 double readTOF(int num){
  tcaselect(num);
  VL53L0X_RangingMeasurementData_t measure;
- tof.rangingTest(&measure, false); // pass in 'true' to get debug data printout!
+ tof.rangingTest(&measure, true); // pass in 'true' to get debug data printout!
  if(measure.RangeStatus == 4){
    return 8196;
  }
  return measure.RangeMilliMeter*6.25/80;
+}
+
+void printTOFs(){
+  Serial.print("Front: "); Serial.print(readTOF(FRONT_TOF));
+  Serial.print("; Back: "); Serial.print(readTOF(BACK_TOF));
+  Serial.print("; Left: "); Serial.print(readTOF(LEFT_TOF));
+  Serial.print("; Right: "); Serial.println(readTOF(RIGHT_TOF));
 }

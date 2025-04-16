@@ -18,3 +18,4 @@ const int tofs[6] = {RIGHT_TOF, FRONT_TOF, LEFT_TOF, BACK_TOF};
 
 void tofInit();
 double readTOF(int num);
+void printTOFs();

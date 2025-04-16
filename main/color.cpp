@@ -4,7 +4,7 @@ Adafruit_APDS9960 apds;
 
 void colorBegin(){
   if(!apds.begin()){
-    Serial.println("failed to initialize device! Please check your wiring.");
+    Serial.println("failed to initialize color sensor! Please check your wiring.");
   }
   else Serial.println("Device initialized!");
   apds.enableColor(true);

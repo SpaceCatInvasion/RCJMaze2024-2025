@@ -1,3 +1,5 @@
-#define LED_PIN 2
+#pragma once
+#include <Arduino.h>
+#define LED_PIN 0
 
 void blink(int amt = 5);

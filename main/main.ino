@@ -43,12 +43,17 @@ void setup(){
     while (1);
   }
   colorBegin();
+  Serial.println(" color ready");
   commBegin();
+  Serial.println(" comm ready");
   servoBegin();
+  Serial.println(" servo ready");
   pinMode(LED_PIN, OUTPUT);
+  Serial.println(" led ready");
 
-  maze.updateTile();
+  // maze.updateTile();
   enc=0;
+  Serial.println("Ready to start");
 }
 
 
@@ -58,6 +63,9 @@ void loop(){
 
   // std::vector<Direction> directions = {NORTH, NORTH, EAST, EAST, SOUTH, SOUTH, WEST, WEST}; 
   // robot.moveDirections(directions);
+
+  // printTOFs();
+
   Serial.print("At point "); printPoint(robot.pos);
   switch(robot.status){
     case TRAVERSING:
