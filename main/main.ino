@@ -75,11 +75,11 @@ void loop(){
           if(robot.status==DANGERZONE) robot.status = BACKTRACKING;
           break;
         case BLACKTILE:
-          maze.maze[robot.pos].black = 1;
+          maze.maze[robot.pos]|=BLACK;
           robot.pos = nextPoint(robot.pos, (Direction)((robot.facing+2)%4)); // return robot's position
           break;
         case REDTILE:
-          maze.maze[robot.pos].red = 1;
+          maze.maze[robot.pos]|=RED;
           robot.pos = nextPoint(robot.pos, (Direction)((robot.facing+2)%4)); // return robot's position
           break;
         case RAMP:

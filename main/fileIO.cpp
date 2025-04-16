@@ -22,8 +22,8 @@ void uploadMaze(Maze m){
     ch[1] = (char)(tiles.first.y);
     ch[2] = (char)(tiles.first.z);
 
-    ch[3] = (char)((*(short*)(&(tiles.second)))>>8);
-    ch[4] = *(char*)(&(tiles.second));
+    ch[3] = (char)(tiles.second>>8);
+    ch[4] = (char)(tiles.second);
     outfile.write(ch,strlen(ch));
   }
   outfile.close();
