@@ -1,6 +1,7 @@
 #include "maze.h"
 #include "Wire.h"
 #include "comm.h"
+#include "fileIO.h"
 Robot robot;
 Maze maze(&robot);
 
@@ -75,64 +76,67 @@ void loop() {
   // forward(50);
   
 
-  robot.turn_to(90);
-  stop_motors(); delay(1000);
-  robot.turn_to(180);
-  stop_motors(); delay(1000);
-  robot.turn_to(270);
-  stop_motors(); delay(1000);
-  // Serial.print("At point ");
-  // printPoint(robot.pos);
-  // switch (robot.status) {
-  //   case TRAVERSING:
-  //   case DANGERZONE:
-  //     switch (robot.moveDirections(maze.findNextMove())) {
-  //       case NOMOVES:
-  //         if (robot.status == DANGERZONE) robot.status = BACKTRACKING;
-  //         break;
-  //       case BLACKTILE:
-  //         maze.maze[robot.pos] |= BLACK;
-  //         robot.pos = nextPoint(robot.pos, (Direction)((robot.facing + 2) % 4));  // return robot's position
-  //         break;
-  //       case REDTILE:
-  //         maze.maze[robot.pos] |= RED;
-  //         robot.pos = nextPoint(robot.pos, (Direction)((robot.facing + 2) % 4));  // return robot's position
-  //         break;
-  //       case RAMP:
-  //         {
-  //           Point flatExit = nextPoint(robot.pos, robot.facing, rampTilesForward);
-  //           if (incline) flatExit.z++;
-  //           else flatExit.z--;
-  //           Point finalRamp = nextPoint(flatExit, (Direction)((robot.facing + 2) % 4));
-  //           maze.rampConnections[robot.pos] = flatExit;
-  //           maze.rampConnections[finalRamp] = nextPoint(robot.pos, (Direction)((robot.facing + 2) % 4));
-  //           maze.AddRamp(finalRamp, (Direction)((robot.facing + 2) % 4));
-  //           maze.AddRamp(robot.pos, robot.facing);
-  //           maze.AddWall(robot.pos, (Direction)((robot.facing + 1) % 4));
-  //           maze.AddWall(robot.pos, (Direction)((robot.facing + 3) % 4));
-  //           maze.AddWall(finalRamp, (Direction)((robot.facing + 1) % 4));
-  //           maze.AddWall(finalRamp, (Direction)((robot.facing + 3) % 4));
-  //           robot.pos = flatExit;
-  //           maze.updateTile();
-  //           break;
-  //         }
-  //       case GOOD:
-  //         maze.updateTile();
-  //         break;
-  //     }
-  //     break;
-  //   case BACKTRACKING:
-  //     Serial.println("Backtracking");
-  //     stop_motors();
-  //     delay(5000);
-  //     robot.moveDirections(maze.findOrigin());
-  //     robot.status = FINISH;
-  //     break;
-  //   case FINISH:
-  //     stop_motors();
-  // }
-  // Serial.print("Ended at point ");
-  // printPoint(robot.pos);
+
+  // forward(100);
+  // forward(60); delay(1000);
+  // lmotors(30); delay(1000);
+  // rmotors(30); delay(1000);
+  // backward(60); delay(1000);
+
+  
+
+  Serial.print("At point ");
+  printPoint(robot.pos);
+  switch (robot.status) {
+    case TRAVERSING:
+    case DANGERZONE:
+      switch (robot.moveDirections(maze.findNextMove())) {
+        case NOMOVES:
+          if (robot.status == DANGERZONE) robot.status = BACKTRACKING;
+          break;
+        case BLACKTILE:
+          maze.maze[robot.pos] |= BLACK;
+          robot.pos = nextPoint(robot.pos, (Direction)((robot.facing + 2) % 4));  // return robot's position
+          break;
+        case REDTILE:
+          maze.maze[robot.pos] |= RED;
+          robot.pos = nextPoint(robot.pos, (Direction)((robot.facing + 2) % 4));  // return robot's position
+          break;
+        case RAMP:
+          {
+            Point flatExit = nextPoint(robot.pos, robot.facing, rampTilesForward);
+            if (incline) flatExit.z++;
+            else flatExit.z--;
+            Point finalRamp = nextPoint(flatExit, (Direction)((robot.facing + 2) % 4));
+            maze.rampConnections[robot.pos] = flatExit;
+            maze.rampConnections[finalRamp] = nextPoint(robot.pos, (Direction)((robot.facing + 2) % 4));
+            maze.AddRamp(finalRamp, (Direction)((robot.facing + 2) % 4));
+            maze.AddRamp(robot.pos, robot.facing);
+            maze.AddWall(robot.pos, (Direction)((robot.facing + 1) % 4));
+            maze.AddWall(robot.pos, (Direction)((robot.facing + 3) % 4));
+            maze.AddWall(finalRamp, (Direction)((robot.facing + 1) % 4));
+            maze.AddWall(finalRamp, (Direction)((robot.facing + 3) % 4));
+            robot.pos = flatExit;
+            maze.updateTile();
+            break;
+          }
+        case GOOD:
+          maze.updateTile();
+          break;
+      }
+      break;
+    case BACKTRACKING:
+      Serial.println("Backtracking");
+      stop_motors();
+      delay(5000);
+      robot.moveDirections(maze.findOrigin());
+      robot.status = FINISH;
+      break;
+    case FINISH:
+      stop_motors();
+  }
+  Serial.print("Ended at point ");
+  printPoint(robot.pos);
 }
 
 // void setup1(){

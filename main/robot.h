@@ -22,13 +22,13 @@
 #define FRONTBACKTOF 17.6
 #endif
 
-#define TILE_MOVE_DIST 27
+#define TILE_MOVE_DIST 32
 #define TILE_LENGTH 30
 extern int rampTilesForward;
 extern bool incline;
 
 #define FORWARD_MOVE_SPEED 40
-#define RAMP_MOVE_SPEED 60
+#define RAMP_MOVE_SPEED 80
 #define RAMP_TILT_THRESH 10
 
 #define RAMP_ON
@@ -64,8 +64,8 @@ enum ReturnError {
   NOMOVES = 4
 };
 
-#define BASE_TURN_SPEED 75
-#define TURNKP 0.5
+#define BASE_TURN_SPEED 70
+#define TURNKP 0
 
 class Robot {
 private:

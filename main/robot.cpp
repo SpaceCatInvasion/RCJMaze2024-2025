@@ -220,11 +220,11 @@ void Robot::frontAlign() {
   Serial.println("Front Aligning");
   int dist = readTOF(FRONT_TOF);
   while (dist < 15 && dist > (30 - FRONTBACKTOF) / 2) {
-    forward(20);
+    forward(30);
     dist = readTOF(FRONT_TOF);
   }
   while (dist < 15 && dist < (30 - FRONTBACKTOF) / 2) {
-    backward(20);
+    backward(30);
     dist = readTOF(FRONT_TOF);
   }
   Serial.println("Front Aligning Done");
@@ -239,11 +239,11 @@ void Robot::backAlign() {
   Serial.println("Back Aligning");
   int dist = readTOF(BACK_TOF);
   while (dist < 15 && dist > (30 - FRONTBACKTOF) / 2) {
-    backward(20);
+    backward(30);
     dist = readTOF(BACK_TOF);
   }
   while (dist < 15 && dist < (30 - FRONTBACKTOF) / 2) {
-    forward(20);
+    forward(30);
     dist = readTOF(BACK_TOF);
   }
   Serial.println("Back Aligning Done");
@@ -342,8 +342,8 @@ void Robot::turn_to(int deg) {
   if (err > 180) err -= 360;
   if (err < -180) err += 360;
   while (err > 2 || err < -2) {
-    lmotors(err * TURNKP + (err > 0 ? BASE_TURN_SPEED : -BASE_TURN_SPEED));
-    rmotors(-1 * err * TURNKP + (err > 0 ? -BASE_TURN_SPEED : BASE_TURN_SPEED));
+    lmotors((err > 0 ? BASE_TURN_SPEED : -BASE_TURN_SPEED));
+    rmotors((err > 0 ? -BASE_TURN_SPEED : BASE_TURN_SPEED));
     err = deg - getBNO();
     if (err > 180) err -= 360;
     if (err < -180) err += 360;
@@ -384,10 +384,10 @@ void Robot::print(){
 
 void printPoint(Point p) {
   Serial.print("(");
-  Serial.print(p.x);
+  Serial.print((int)p.x);
   Serial.print(",");
-  Serial.print(p.y);
+  Serial.print((int)p.y);
   Serial.print(",");
-  Serial.print(p.z);
+  Serial.print((int)p.z);
   Serial.println(")");
 }

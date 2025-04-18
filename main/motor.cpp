@@ -2,26 +2,26 @@
 
 //Motor m(11,10);
 
-Motor frontLeft(10, 11);
-Motor frontRight(9, 8);
+Motor frontLeft(8, 9);
+Motor frontRight(10, 11);
 Motor backLeft(12, 13);
-Motor backRight(15, 14);
+Motor backRight(14, 15);
 
 volatile int enc = 0;
 void enc_update() {
   if (digitalRead(ENC_PIN) == HIGH)
-    enc--;
-  else
     enc++;
+  else
+    enc--;
 }
 
 void lmotors(int speed) {
-  frontLeft.speed(-speed);
+  frontLeft.speed(speed);
   backLeft.speed(speed);
 }
 void rmotors(int speed) {
   frontRight.speed(speed);
-  backRight.speed(-speed);
+  backRight.speed(speed);
 }
 
 void forward(int speed) {
