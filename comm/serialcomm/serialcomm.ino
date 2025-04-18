@@ -2,9 +2,11 @@
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
-  Serial1.setTX(28);
-  Serial1.setRX(29);
+  Serial1.setTX(0);
+  Serial1.setRX(1);
   Serial1.begin(115200);
+  while(!Serial);
+  Serial.println("Started communication");
 }
 int iter = 0;
 void loop() {
