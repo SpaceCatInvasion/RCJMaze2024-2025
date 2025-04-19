@@ -13,3 +13,6 @@
 #define SDA_PIN 28
 #define SCL_PIN1 27
 #define SDA_PIN1 26
+
+#define LEFT_LIMIT_SWITCH_PIN 6
+#define RIGHT_LIMIT_SWITCH_PIN 7

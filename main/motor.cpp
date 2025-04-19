@@ -54,6 +54,13 @@ void backwardCm(int speed, int cm) {
   }
 }
 
+
+void backtrack(speed) {
+  while(enc > 0) {
+    backward(speed);
+  }
+}
+
 int cmToEnc(double cm) {
   return cm * ENC_PER_ROT / (PI * WHEELDIA);
 }

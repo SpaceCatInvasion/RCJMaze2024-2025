@@ -22,10 +22,12 @@ void setup() {
     ;
 
 
+  //enc init
   pinMode(ENC_PIN, INPUT);
   pinMode(ENC_PIN_INTER, INPUT);
   attachInterrupt(digitalPinToInterrupt(ENC_PIN_INTER), enc_update, RISING);
 
+  //i2c init
   Wire.setSCL(SCL_PIN);
   Wire.setSDA(SDA_PIN);
   Wire.begin();
@@ -36,18 +38,28 @@ void setup() {
 
   Serial.println(" i2c ready");
 
+  //color sensor init
   colorBegin();
   Serial.println(" color ready");
 
+  //limit switch init
+  pinMode(RIGHT_LIMIT_SWITCH_PIN, INPUT_PULLUP);
+  pinMode(LEFT_LIMIT_SWITCH_PIN, INPUT_PULLUP);
+
+
+
+  //imu init
   if (!bno.begin(OPERATION_MODE_IMUPLUS)) {
     Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
     while (1)
       ;
   }
 
+  //tof init
   tofInit();
   Serial.println(" tof ready");
 
+  //serial init
   commBegin();
   Serial.println(" comm ready");
   servoBegin();
@@ -55,6 +67,7 @@ void setup() {
   pinMode(LED_PIN, OUTPUT);
   Serial.println(" led ready");
 
+  //file io init
   LittleFS.begin();
   Serial.println(" file system ready");
 

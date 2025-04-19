@@ -118,11 +118,15 @@ ReturnError Robot::robotForward(double cm) {
   Serial.println(cm);
   enc = 0;
   int colorIter = 0;
+  bool obstacle = false;
   // Serial.print("enc: ");
   // Serial.println(enc);
-  while (enc < cmToEnc(cm)) {
+  while (enc < cmToEnc(cm) && !obstacle) {
     // Serial.print("enc: ");
     // Serial.println(enc);
+  if(digitalRead(LEFT_LIMIT_SWITCH_PIN) == LOW || digitalRead(RIGHT_LIMIT_SWITCH_PIN) == LOW) {
+    obstacle = true;
+  }
 
 
 #ifdef RAMP_ON
@@ -194,15 +198,16 @@ ReturnError Robot::robotForward(double cm) {
           }
         case WHITE:
         default:
-
           break;
       }
     }
-#ifdef OBSTALCE_ON
-    forward(FORWARD_MOVE_SPEED + getOffsetDueToObject());
-#else
-    forward(FORWARD_MOVE_SPEED);
-#endif
+  }
+  if(obstacle) {
+    stop_motors();
+    delay(500);
+    backtrack();
+    stop_motors();
+    delay(100);
   }
   enc = 0;
   stop_motors();
