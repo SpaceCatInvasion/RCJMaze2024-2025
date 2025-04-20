@@ -9,13 +9,13 @@
 bool Maze::hasWall(Point p, Direction d) {
   switch (d) {
     case NORTH:
-      return (maze[p] & NWALL) || (maze[nextPoint(p, d)] & SWALL);
+      return (maze[p] & NWALL) | (maze[nextPoint(p, d)] & SWALL);
     case SOUTH:
-      return (maze[p] & SWALL) || (maze[nextPoint(p, d)] & NWALL);
+      return (maze[p] & SWALL) | (maze[nextPoint(p, d)] & NWALL);
     case EAST:
-      return (maze[p] & EWALL) || (maze[nextPoint(p, d)] & WWALL);
+      return (maze[p] & EWALL) | (maze[nextPoint(p, d)] & WWALL);
     case WEST:
-      return (maze[p] & WWALL) || (maze[nextPoint(p, d)] & EWALL);
+      return (maze[p] & WWALL) | (maze[nextPoint(p, d)] & EWALL);
   }
   return 1;
 }

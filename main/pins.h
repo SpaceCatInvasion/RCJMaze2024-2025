@@ -1,6 +1,8 @@
 #define LED_PIN 3
 
 #define SERVO_PIN 4
+#define DIR 19
+#define STEP 18
 
 #define INTERRUPT_PIN 7
 #define TX_PIN 0

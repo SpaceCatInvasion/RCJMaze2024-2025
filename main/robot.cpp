@@ -121,14 +121,16 @@ ReturnError Robot::robotForward(double cm) {
   bool obstacle = false;
   // Serial.print("enc: ");
   // Serial.println(enc);
-  while (enc < cmToEnc(cm) && !obstacle) {
+  while (enc < cmToEnc(cm)) {
     // Serial.print("enc: ");
     // Serial.println(enc);
-  if(digitalRead(LEFT_LIMIT_SWITCH_PIN) == LOW || digitalRead(RIGHT_LIMIT_SWITCH_PIN) == LOW) {
-    obstacle = true;
-  }
+    // if(digitalRead(LEFT_LIMIT_SWITCH_PIN) == LOW || digitalRead(RIGHT_LIMIT_SWITCH_PIN) == LOW) {
+    //   obstacle = true;
+    // }
 
-
+#ifdef CAM_ON
+    if (interrupted) interruptFunc();
+#endif
 #ifdef RAMP_ON
     // Serial.print("Ramp Tilt: "); Serial.println(abs(getTilt()));
     if (abs(getTilt()) > RAMP_TILT_THRESH) {
@@ -147,6 +149,9 @@ ReturnError Robot::robotForward(double cm) {
       float angle = getTilt();
       int calcIter = 0;
       while ((abs(getTilt())) > RAMP_TILT_THRESH) {
+#ifdef CAM_ON
+        if (interrupted) interruptFunc();
+#endif
         if (!(calcIter++ % 10)) {
           forward(RAMP_MOVE_SPEED * (1 + 0.01 * (angle - 20)));  // PID
           distForward += encToCm(enc - prevEnc) * cos((aToR(angle = getTilt())));
@@ -201,14 +206,15 @@ ReturnError Robot::robotForward(double cm) {
           break;
       }
     }
+    forward(FORWARD_MOVE_SPEED);
   }
-  if(obstacle) {
-    stop_motors();
-    delay(500);
-    backtrack();
-    stop_motors();
-    delay(100);
-  }
+  // if(obstacle) {
+  //   stop_motors();
+  //   delay(500);
+  //   backtrack();
+  //   stop_motors();
+  //   delay(100);
+  // }
   enc = 0;
   stop_motors();
   delay(10);
@@ -320,6 +326,7 @@ ReturnError Robot::moveRobot(Direction dir) {
 ReturnError Robot::moveDirections(std::vector<Direction> directions) {
   if (directions.empty()) return NOMOVES;
   for (Direction d : directions) {
+    printDir(d);
     pos = nextPoint(pos, d);
     ReturnError moveStatus = moveRobot(d);
     stop_motors();
@@ -347,6 +354,9 @@ void Robot::turn_to(int deg) {
   if (err > 180) err -= 360;
   if (err < -180) err += 360;
   while (err > 2 || err < -2) {
+#ifdef CAM_ON
+    if (interrupted) interruptFunc();
+#endif
     lmotors((err > 0 ? BASE_TURN_SPEED : -BASE_TURN_SPEED));
     rmotors((err > 0 ? -BASE_TURN_SPEED : BASE_TURN_SPEED));
     err = deg - getBNO();
@@ -367,18 +377,22 @@ void Robot::turn(int deg) {
   turn_to(deg + getBNO());
 }
 
-void Robot::print(){
-  switch(status){
+void Robot::print() {
+  switch (status) {
     case TRAVERSING: Serial.print("Traversing... "); break;
     case DANGERZONE: Serial.print("In Danger Zone... "); break;
     case BACKTRACKING: Serial.print("Backtracking... "); break;
     case FINISH: Serial.print("Finished! "); break;
     case END: Serial.print("Run over... "); break;
   }
-  Serial.print("Robot at ("); 
-  Serial.print(pos.x); Serial.print(","); Serial.print(pos.y); Serial.print(","); Serial.print(pos.z); 
+  Serial.print("Robot at (");
+  Serial.print(pos.x);
+  Serial.print(",");
+  Serial.print(pos.y);
+  Serial.print(",");
+  Serial.print(pos.z);
   Serial.print(") facing ");
-  switch(facing){
+  switch (facing) {
     case NORTH: Serial.print("North"); break;
     case SOUTH: Serial.print("South"); break;
     case EAST: Serial.print("East"); break;
@@ -395,4 +409,13 @@ void printPoint(Point p) {
   Serial.print(",");
   Serial.print((int)p.z);
   Serial.println(")");
+}
+
+void printDir(Direction d){
+  switch(d){
+    case NORTH: Serial.println("North"); break;
+    case SOUTH: Serial.println("South"); break;
+    case EAST: Serial.println("East"); break;
+    case WEST: Serial.println("West"); break;
+  }
 }

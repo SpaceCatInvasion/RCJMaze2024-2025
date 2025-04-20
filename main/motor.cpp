@@ -4,8 +4,8 @@
 
 Motor frontLeft(8, 9);
 Motor frontRight(10, 11);
-Motor backLeft(12, 13);
-Motor backRight(14, 15);
+Motor backLeft(13, 12);
+Motor backRight(15, 14);
 
 volatile int enc = 0;
 void enc_update() {
@@ -55,11 +55,11 @@ void backwardCm(int speed, int cm) {
 }
 
 
-void backtrack(speed) {
-  while(enc > 0) {
-    backward(speed);
-  }
-}
+// void backtrack(speed) {
+//   while(enc > 0) {
+//     backward(speed);
+//   }
+// }
 
 int cmToEnc(double cm) {
   return cm * ENC_PER_ROT / (PI * WHEELDIA);

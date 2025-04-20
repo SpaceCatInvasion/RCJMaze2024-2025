@@ -1,12 +1,11 @@
 #include "maze.h"
 #include "Wire.h"
-#include "comm.h"
 #include "fileIO.h"
 Robot robot;
 Maze maze(&robot);
 
 #define RAMP_ON
-#define CAM_OFF
+#define CAM_ON
 //#define OBSTACLE_ON
 // #define OLD_BOT
 #define NEW_BOT
@@ -62,8 +61,6 @@ void setup() {
   //serial init
   commBegin();
   Serial.println(" comm ready");
-  servoBegin();
-  Serial.println(" servo ready");
   pinMode(LED_PIN, OUTPUT);
   Serial.println(" led ready");
 
@@ -71,13 +68,20 @@ void setup() {
   LittleFS.begin();
   Serial.println(" file system ready");
 
+  servo.attach(SERVO_PIN);
+  Serial.println(" servo ready");
+
+  pinMode(STEP, OUTPUT);
+  pinMode(DIR, OUTPUT);
+  Serial.println(" stepper ready");
+
   maze.updateTile();
   enc = 0;
   Serial.println("Ready to start");
 }
 
 
-
+int iter = 0;
 void loop() {
 
 
@@ -95,8 +99,13 @@ void loop() {
   // lmotors(30); delay(1000);
   // rmotors(30); delay(1000);
   // backward(60); delay(1000);
-
-  
+//   Serial.println("foward...");
+//   forward(30);
+//   // delay(250);
+//   #ifdef CAM_ON
+//     if (interrupted) interruptFunc();
+// #endif
+// printTOFs();
 
   Serial.print("At point ");
   printPoint(robot.pos);

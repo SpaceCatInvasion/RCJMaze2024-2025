@@ -1,4 +1,9 @@
 #pragma once
-#include "servo.h"
+#include <Servo.h>
+#include "pins.h"
 
-void drop(char side, char vic);
+extern Servo servo;
+
+void moveStepper(int steps);
+void dropVictims(char side, char vic);
+void drop(bool onLeft);

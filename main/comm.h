@@ -6,5 +6,6 @@
 #include "led.h"
 #include "pins.h"
 
+extern volatile bool interrupted;
 void interruptFunc();
 void commBegin();

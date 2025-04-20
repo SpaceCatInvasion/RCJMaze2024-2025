@@ -5,6 +5,7 @@
 #include "motor.h"
 #include <math.h>
 #include "color.h"
+#include "comm.h"
 
 
 #ifdef NEW_BOT
@@ -34,9 +35,9 @@ extern bool incline;
 #define RAMP_ON
 
 struct Point {
-  char x;
-  char y;
-  char z;
+  int x;
+  int y;
+  int z;
 };
 struct PointCmp {
   bool operator()(const Point &lhs, const Point &rhs) const {
@@ -90,3 +91,4 @@ bool samePoint(Point p1, Point p2);
 Point nextPoint(Point p, Direction d, int mag = 1);
 int directionAngle(Direction d);
 void printPoint(Point p);
+void printDir(Direction d);
