@@ -106,7 +106,9 @@ void loop() {
 //     if (interrupted) interruptFunc();
 // #endif
 // printTOFs();
-
+// lmotors(70);
+// rmotors(-70);
+// delay(10000000);
   Serial.print("At point ");
   printPoint(robot.pos);
   switch (robot.status) {

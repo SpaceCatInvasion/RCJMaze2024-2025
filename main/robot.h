@@ -11,7 +11,7 @@
 #ifdef NEW_BOT
 #define WIDTH 12.6
 #define ENC_PER_ROT 210
-#define WHEELDIA 7.4
+#define WHEELDIA 6.9
 #define TOF_WIDTH 12.2
 #define FRONTBACKTOF 19.9
 
@@ -23,7 +23,7 @@
 #define FRONTBACKTOF 17.6
 #endif
 
-#define TILE_MOVE_DIST 32
+#define TILE_MOVE_DIST 28
 #define TILE_LENGTH 30
 extern int rampTilesForward;
 extern bool incline;

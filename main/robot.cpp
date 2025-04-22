@@ -206,6 +206,7 @@ ReturnError Robot::robotForward(double cm) {
           break;
       }
     }
+    // Serial.println("forward...");
     forward(FORWARD_MOVE_SPEED);
   }
   // if(obstacle) {
@@ -363,9 +364,9 @@ delay(20);
 stop_motors();
 delay(300);
 */
-  lmotors(-60);
-  rmotors(-60);
-  delay(50);
+  // lmotors(-60);
+  // rmotors(-60);
+  // delay(50);
   stop_motors();
   int i = 0;
   deg %= 360;
@@ -373,64 +374,65 @@ delay(300);
   double err = deg - getBNO();
   if (err > 180) err -= 360;
   if (err < -180) err += 360;
-  while (err > 2 || err < -2) {
+  if(err>30||err<-30) {
+    backward(40); delay(250);
+  }
+  while (err > 1 || err < -1) {
 #ifdef CAM_ON
     if (interrupted) interruptFunc();
 #endif
-    if (err > 0) {
+    if (err < 0) {
 
       if (i == 0) {
-        lmotors(-80);
-        rmotors(0);
-        delay(175);
+        lmotors(-90);
+        rmotors(35);
+        delay(100);
       }
       if (i == 1) {
         stop_motors();
-        delay(100);
+        delay(50);
       }
 
       if (i == 2) {
-        rmotors(75);
-        lmotors(0);
-        delay(175);
+        // rmotors(80);
+        // lmotors(0);
+        // delay(175);
+      }
+      if (i == 3) {
+        stop_motors();
+        forward(60);
+        delay(50);
+      }
+      if (i == 4) {
+        stop_motors();
+        delay(50);
+      }
+    } else {
+      if (i == 0) {
+        lmotors(35);
+        rmotors(-90);
+        delay(100);
+      }
+      if (i == 1) {
+        stop_motors();
+        delay(50);
+      }
+
+      if (i == 2) {
+        // rmotors(0);
+        // lmotors(75);
+        // delay(175);
       }
 
       if (i == 3) {
         stop_motors();
         forward(60);
-        delay(35);
+        delay(50);
       }
 
       if (i == 4) {
         stop_motors();
-        delay(300);
-      }
-    } else if (err <= 0) {
-      if (i == 0) {
-        lmotors(0);
-        rmotors(-75);
-        delay(175);
-      }
-      if (i == 1) {
-        stop_motors();
-        delay(100);
-      }
-
-      if (i == 2) {
-        rmotors(0);
-        lmotors(80);
-        delay(175);
-      }
-
-      if (i == 3) {
-        stop_motors();
-        forward(60);
-        delay(35);
-      }
-
-      if (i == 4) {
-        stop_motors();
-        delay(300);
+        delay(50);
       }
     }
     err = deg - getBNO();
@@ -440,9 +442,9 @@ delay(300);
     }
     if (err > 180) err -= 360;
     if (err < -180) err += 360;
-    //Serial.print("Error: "); Serial.println(err);
+    Serial.print("Error: "); Serial.println(err);
   }
-  //Serial.println("DONE");
+  Serial.println("DONE");
 }
 
 
