@@ -20,7 +20,7 @@ void lmotors(int speed) {
   backLeft.speed(speed);
 }
 void rmotors(int speed) {
-  frontRight.speed(speed*.75);
+  frontRight.speed(speed);
   backRight.speed(speed);
 }
 

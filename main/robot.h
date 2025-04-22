@@ -28,7 +28,7 @@
 extern int rampTilesForward;
 extern bool incline;
 
-#define FORWARD_MOVE_SPEED 100
+#define FORWARD_MOVE_SPEED 40
 #define RAMP_MOVE_SPEED 80
 #define RAMP_TILT_THRESH 10
 
@@ -65,7 +65,7 @@ enum ReturnError {
   NOMOVES = 4
 };
 
-#define BASE_TURN_SPEED 100
+#define BASE_TURN_SPEED 70
 #define TURNKP 0
 
 class Robot {
@@ -92,4 +92,3 @@ Point nextPoint(Point p, Direction d, int mag = 1);
 int directionAngle(Direction d);
 void printPoint(Point p);
 void printDir(Direction d);
-void scuffedTurn();
