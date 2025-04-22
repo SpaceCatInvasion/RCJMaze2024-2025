@@ -279,6 +279,7 @@ ReturnError Robot::moveRobot(Direction dir) {
   facing = dir;
   stop_motors();
   delay(200);
+
   turn_to(directionAngle(dir));
   stop_motors();
   delay(200);
@@ -348,6 +349,25 @@ ReturnError Robot::moveDirections(std::vector<Direction> directions) {
  * @return None
  */
 void Robot::turn_to(int deg) {
+
+  /*
+lmotors(-80);
+delay(175);
+stop_motors();
+delay(100);
+rmotors(75);
+delay(175);
+stop_motors();
+forward(60);
+delay(20);
+stop_motors();
+delay(300);
+*/
+  lmotors(-60);
+  rmotors(-60);
+  delay(50);
+  stop_motors();
+  int i = 0;
   deg %= 360;
   if (deg < 0) deg += 360;
   double err = deg - getBNO();
@@ -357,15 +377,76 @@ void Robot::turn_to(int deg) {
 #ifdef CAM_ON
     if (interrupted) interruptFunc();
 #endif
-    lmotors((err > 0 ? BASE_TURN_SPEED : -BASE_TURN_SPEED));
-    rmotors((err > 0 ? -BASE_TURN_SPEED : BASE_TURN_SPEED));
+    if (err > 0) {
+
+      if (i == 0) {
+        lmotors(-80);
+        rmotors(0);
+        delay(175);
+      }
+      if (i == 1) {
+        stop_motors();
+        delay(100);
+      }
+
+      if (i == 2) {
+        rmotors(75);
+        lmotors(0);
+        delay(175);
+      }
+
+      if (i == 3) {
+        stop_motors();
+        forward(60);
+        delay(35);
+      }
+
+      if (i == 4) {
+        stop_motors();
+        delay(300);
+      }
+    } else if (err <= 0) {
+      if (i == 0) {
+        lmotors(0);
+        rmotors(-75);
+        delay(175);
+      }
+      if (i == 1) {
+        stop_motors();
+        delay(100);
+      }
+
+      if (i == 2) {
+        rmotors(0);
+        lmotors(80);
+        delay(175);
+      }
+
+      if (i == 3) {
+        stop_motors();
+        forward(60);
+        delay(35);
+      }
+
+      if (i == 4) {
+        stop_motors();
+        delay(300);
+      }
+    }
     err = deg - getBNO();
+    i++;
+    if (i == 5) {
+      i = 0;
+    }
     if (err > 180) err -= 360;
     if (err < -180) err += 360;
     //Serial.print("Error: "); Serial.println(err);
   }
   //Serial.println("DONE");
 }
+
+
+
 
 /*
  * Turn specified degrees clockwise from current angle
@@ -374,6 +455,7 @@ void Robot::turn_to(int deg) {
  * @return None
  */
 void Robot::turn(int deg) {
+
   turn_to(deg + getBNO());
 }
 
@@ -411,8 +493,8 @@ void printPoint(Point p) {
   Serial.println(")");
 }
 
-void printDir(Direction d){
-  switch(d){
+void printDir(Direction d) {
+  switch (d) {
     case NORTH: Serial.println("North"); break;
     case SOUTH: Serial.println("South"); break;
     case EAST: Serial.println("East"); break;
