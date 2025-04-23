@@ -17,10 +17,12 @@ void stop_motors();
 
 void forwardCm(int speed, int cm);
 void backwardCm(int speed, int cm);
+void testForward();
 // void backtrack(int speed);
 
 int cmToEnc(double cm);
 double encToCm(int enc);
+void printEncs();
 
 class Motor {
 public:

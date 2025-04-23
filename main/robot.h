@@ -10,14 +10,14 @@
 
 #ifdef NEW_BOT
 #define WIDTH 12.6
-#define ENC_PER_ROT 210
+#define ENC_PER_ROT 749
 #define WHEELDIA 7.4
 #define TOF_WIDTH 12.2
 #define FRONTBACKTOF 19.9
 
 #else
 #define WIDTH 12.15
-#define ENC_PER_ROT 230
+#define ENC_PER_ROT 749
 #define WHEELDIA 7.4
 #define TOF_WIDTH 12.55
 #define FRONTBACKTOF 17.6
@@ -29,7 +29,7 @@ extern int rampTilesForward;
 extern bool incline;
 
 #define FORWARD_MOVE_SPEED 40
-#define RAMP_MOVE_SPEED 80
+#define RAMP_MOVE_SPEED 100
 #define RAMP_TILT_THRESH 10
 
 #define RAMP_ON
@@ -65,7 +65,7 @@ enum ReturnError {
   NOMOVES = 4
 };
 
-#define BASE_TURN_SPEED 70
+#define BASE_TURN_SPEED 90
 #define TURNKP 0
 
 class Robot {

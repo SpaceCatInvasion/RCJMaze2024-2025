@@ -8,11 +8,17 @@ Motor backLeft(13, 12);
 Motor backRight(15, 14);
 
 volatile int enc = 0;
+
+
 void enc_update() {
   if (digitalRead(ENC_PIN) == HIGH)
-    enc++;
-  else
     enc--;
+  else
+    enc++;
+}
+
+void printEncs() {
+  Serial.println(enc);
 }
 
 void lmotors(int speed) {
@@ -25,8 +31,8 @@ void rmotors(int speed) {
 }
 
 void forward(int speed) {
-  // Serial.print("encs: ");
-  // Serial.println(enc);
+  Serial.print("encs: ");
+  Serial.println(enc);
   lmotors(speed);
   rmotors(speed);
 }
@@ -66,6 +72,16 @@ int cmToEnc(double cm) {
 }
 double encToCm(int enc) {
   return enc * PI * WHEELDIA / ENC_PER_ROT;
+}
+
+
+void testForward() {
+  enc = 0;
+  while(enc < ENC_PER_ROT) {
+    forward(40);
+  }
+  stop_motors();
+  delay(1000);
 }
 
 void Motor::speed(int percent) {

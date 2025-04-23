@@ -5,7 +5,7 @@ Robot robot;
 Maze maze(&robot);
 
 #define RAMP_ON
-#define CAM_ON
+//#define CAM_ON
 //#define OBSTACLE_ON
 // #define OLD_BOT
 #define NEW_BOT
@@ -96,8 +96,21 @@ void loop() {
 
   // forward(100);
   // forward(60); delay(1000);
-  // lmotors(30); delay(1000);
-  // rmotors(30); delay(1000);
+  // int x = getBNO();
+  // while(abs(getBNO) < x + 90) {
+  //  lmotors(70);
+  //  rmotors(0);
+  //  delay(150);
+  //  stop_motors();
+  //  delay(300);
+  //  rmotors(-55);
+  //  lmotors(0);
+  //  delay(150);
+  //  stop_motors();
+  //  delay(300);
+  // }
+  // stop_motors();
+  // delay(1000);
   // backward(60); delay(1000);
 //   Serial.println("foward...");
 //   forward(30);
@@ -106,6 +119,9 @@ void loop() {
 //     if (interrupted) interruptFunc();
 // #endif
 // printTOFs();
+
+
+
 
   Serial.print("At point ");
   printPoint(robot.pos);
@@ -159,6 +175,24 @@ void loop() {
   }
   Serial.print("Ended at point ");
   printPoint(robot.pos);
+
+
+//testForward();
+// delay(175);
+// stop_motors();
+// delay(100);
+// rmotors(75);
+// delay(175);
+// stop_motors();
+// forward(60);
+// delay(20);
+// stop_motors();
+// delay(300);
+
+// lmotors(100);
+// rmotors(100);
+
+//printEncs();
 }
 
 // void setup1(){
