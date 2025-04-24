@@ -10,7 +10,7 @@ void setFlag(){
 void interruptFunc() {
   Serial.println("Interrupted!");
   stop_motors(); delay(500);
-  //forwardCm(30,8);
+ // forwardCm(30,8);
   stop_motors(); delay(250);
   // while (Serial1.available()) Serial1.read();  // clear buffer
   while (!Serial1.available()) Serial.println("waiting1");

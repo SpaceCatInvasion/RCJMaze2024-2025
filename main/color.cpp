@@ -31,7 +31,7 @@ TileColor getColor() {
   // Serial.print(" clear: ");
   // Serial.println(c);
 
-  if (c < 40)
+  if (c < 10)
     return BLACK;
   else if (c > 500)
     return SILVER;
@@ -43,4 +43,21 @@ TileColor getColor() {
     return WHITE;
   else
     return UNK;
+}
+
+
+void printColorSensorData() {
+  uint16_t r, g, b, c;
+  apds.getColorData(&r, &g, &b, &c);
+  Serial.print("red: ");
+  Serial.print(r);
+
+  Serial.print(" green: ");
+  Serial.print(g);
+
+  Serial.print(" blue: ");
+  Serial.print(b);
+
+  Serial.print(" clear: ");
+  Serial.println(c);
 }

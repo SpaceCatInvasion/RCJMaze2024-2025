@@ -118,21 +118,24 @@ ReturnError Robot::robotForward(double cm) {
   Serial.println(cm);
   enc = 0;
   int colorIter = 0;
-  bool obstacle = false;
   // Serial.print("enc: ");
   // Serial.println(enc);
   while (enc < cmToEnc(cm)) {
-      if(encToCm(enc)>cm*.85 && readTOF(FRONT_TOF) < 2) break;
+    if (encToCm(enc) > cm * .85 && readTOF(FRONT_TOF) < 10) break;
     // Serial.print("goal: ");
     // Serial.println(cmToEnc(cm));
     // Serial.print("enc: ");
     // Serial.println(enc);
-    // if(digitalRead(LEFT_LIMIT_SWITCH_PIN) == LOW || digitalRead(RIGHT_LIMIT_SWITCH_PIN) == LOW) {
-    //   obstacle = true;
-    // }
+
+    if (digitalRead(LEFT_LIMIT_SWITCH_PIN) == LOW || digitalRead(RIGHT_LIMIT_SWITCH_PIN) == LOW) {
+      backwardCm(FORWARD_MOVE_SPEED, encToCm(enc) + 1);
+      return BLACKTILE;
+    }
 
 #ifdef CAM_ON
-    if (interrupted) interruptFunc();
+    if (interrupted) {
+      interruptFunc();
+    }
 #endif
 #ifdef RAMP_ON
     // Serial.print("Ramp Tilt: "); Serial.println(abs(getTilt()));
@@ -153,7 +156,9 @@ ReturnError Robot::robotForward(double cm) {
       int calcIter = 0;
       while ((abs(getTilt())) > RAMP_TILT_THRESH) {
 #ifdef CAM_ON
-        if (interrupted) interruptFunc();
+        if (interrupted) {
+          interruptFunc();
+        }
 #endif
         if (!(calcIter++ % 10)) {
           forward(RAMP_MOVE_SPEED * (1 + 0.01 * (angle - 20)));  // PID
@@ -176,7 +181,7 @@ ReturnError Robot::robotForward(double cm) {
       rampTilesForward = distForward / 30;
       if ((int)distForward % TILE_LENGTH > 15) rampTilesForward++;
       while (abs(getTilt()) > 5) {
-        forward(RAMP_MOVE_SPEED * (.6 + 0.04 * (angle)));
+        forward(RAMP_MOVE_SPEED * (.75 + 0.04 * (angle)));
       }
       forwardCm(60, 5);
       stop_motors();
@@ -352,7 +357,7 @@ ReturnError Robot::moveDirections(std::vector<Direction> directions) {
  * @return None
  */
 
- /*
+/*
 void Robot::turn_to(int deg) {
 
   /*
@@ -459,7 +464,27 @@ void Robot::turn_to(int deg) {
   if (err < -180) err += 360;
   while (err > 2 || err < -2) {
 #ifdef CAM_ON
-    if (interrupted) interruptFunc();
+    if (interrupted) {
+      stop_motors();
+      digitalWrite(6, HIGH);
+      delay(500);
+
+      digitalWrite(6, LOW);
+      delay(500);
+
+      digitalWrite(6, HIGH);
+      delay(500);
+
+      digitalWrite(6, LOW);
+      delay(500);
+
+      digitalWrite(6, HIGH);
+      delay(500);
+
+      digitalWrite(6, LOW);
+      delay(500);
+      interruptFunc();
+    }
 #endif
     lmotors((err > 0 ? BASE_TURN_SPEED : -BASE_TURN_SPEED));
     rmotors((err > 0 ? -BASE_TURN_SPEED : BASE_TURN_SPEED));

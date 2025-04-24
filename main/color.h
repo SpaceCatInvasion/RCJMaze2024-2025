@@ -13,3 +13,4 @@ enum TileColor {
 
 void colorBegin();
 TileColor getColor();
+void printColorSensorData();

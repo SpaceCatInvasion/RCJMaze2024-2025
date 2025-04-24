@@ -1,5 +1,3 @@
-#define LED_PIN 3
-
 #define SERVO_PIN 4
 #define DIR 19
 #define STEP 18
@@ -16,5 +14,6 @@
 #define SCL_PIN1 27
 #define SDA_PIN1 26
 
-#define LEFT_LIMIT_SWITCH_PIN 6
-#define RIGHT_LIMIT_SWITCH_PIN 7
+#define LEFT_LIMIT_SWITCH_PIN 2
+#define RIGHT_LIMIT_SWITCH_PIN 3
+

@@ -5,13 +5,19 @@ Robot robot;
 Maze maze(&robot);
 
 #define RAMP_ON
-//#define CAM_ON
-//#define OBSTACLE_ON
+#define CAM_ON
+#define OBSTACLE_ON
 // #define OLD_BOT
 #define NEW_BOT
 
 
 void setup() {
+  
+  //limit switch init
+  pinMode(RIGHT_LIMIT_SWITCH_PIN, INPUT_PULLUP);
+  pinMode(LEFT_LIMIT_SWITCH_PIN, INPUT_PULLUP);
+
+  
   Serial.begin(9600);
   delay(2000);
   //while(!Serial);
@@ -41,9 +47,6 @@ void setup() {
   colorBegin();
   Serial.println(" color ready");
 
-  //limit switch init
-  pinMode(RIGHT_LIMIT_SWITCH_PIN, INPUT_PULLUP);
-  pinMode(LEFT_LIMIT_SWITCH_PIN, INPUT_PULLUP);
 
 
 
@@ -61,19 +64,24 @@ void setup() {
   //serial init
   commBegin();
   Serial.println(" comm ready");
-  pinMode(LED_PIN, OUTPUT);
   Serial.println(" led ready");
 
   //file io init
   LittleFS.begin();
   Serial.println(" file system ready");
 
+
+  //servo init
   servo.attach(SERVO_PIN);
   Serial.println(" servo ready");
 
+  //stepper init
   pinMode(STEP, OUTPUT);
   pinMode(DIR, OUTPUT);
   Serial.println(" stepper ready");
+
+  //led init
+  ledInit();
 
   maze.updateTile();
   enc = 0;
@@ -115,9 +123,15 @@ void loop() {
 //   Serial.println("foward...");
 //   forward(30);
 //   // delay(250);
-//   #ifdef CAM_ON
-//     if (interrupted) interruptFunc();
-// #endif
+
+
+
+  #ifdef CAM_ON
+    if (interrupted) {
+      interruptFunc();
+    }
+#endif
+
 // printTOFs();
 
 
@@ -176,6 +190,10 @@ void loop() {
   printPoint(robot.pos);
 
 
+
+// printColorSensorData();
+
+//blink();
 //testForward();
 // delay(175);
 // stop_motors();
