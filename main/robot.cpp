@@ -84,7 +84,7 @@ double aToR(double a) {
  * @return Acute angle from the y-axis
  */
 double Robot::sideAlignment() {
-  double dist = readTOF(LEFT_TOF) + 2;  //bias - positive = goes closer to wall
+  double dist = readTOF(LEFT_TOF);  //bias - positive = goes closer to wall
   //dist*=dist/3; //exagerates movement - (dist/b)^a decrease a to exagerate less, b is focus of exageration
   dist = dist < 0 ? 0.2 : dist;
   if (dist < 15 && dist > 0.1) {
@@ -94,7 +94,7 @@ double Robot::sideAlignment() {
     delay(10);
     return theta;
   }
-  dist = readTOF(RIGHT_TOF) + 2;  //bias - positive = goes closer to wall
+  dist = readTOF(RIGHT_TOF);  //bias - positive = goes closer to wall
   //dist*=dist/3; //exagerates movement - (dist/b)^a decrease a to exagerate less, b is focus of exageration
   dist = dist < 0 ? 0.2 : dist;
   if (dist < 15 && dist > 0.1) {
@@ -122,8 +122,9 @@ ReturnError Robot::robotForward(double cm) {
   // Serial.print("enc: ");
   // Serial.println(enc);
   while (enc < cmToEnc(cm)) {
-    Serial.print("goal: ");
-    Serial.println(cmToEnc(cm));
+      if(encToCm(enc)>cm*.85 && readTOF(FRONT_TOF) < 2) break;
+    // Serial.print("goal: ");
+    // Serial.println(cmToEnc(cm));
     // Serial.print("enc: ");
     // Serial.println(enc);
     // if(digitalRead(LEFT_LIMIT_SWITCH_PIN) == LOW || digitalRead(RIGHT_LIMIT_SWITCH_PIN) == LOW) {
@@ -175,9 +176,9 @@ ReturnError Robot::robotForward(double cm) {
       rampTilesForward = distForward / 30;
       if ((int)distForward % TILE_LENGTH > 15) rampTilesForward++;
       while (abs(getTilt()) > 5) {
-        forward(RAMP_MOVE_SPEED * (.4 + 0.04 * (-angle)));
+        forward(RAMP_MOVE_SPEED * (.6 + 0.04 * (angle)));
       }
-      forwardCm(30, 5);
+      forwardCm(60, 5);
       stop_motors();
       delay(500);
       return RAMP;

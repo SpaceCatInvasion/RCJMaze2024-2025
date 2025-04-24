@@ -122,7 +122,6 @@ void loop() {
 
 
 
-
   Serial.print("At point ");
   printPoint(robot.pos);
   switch (robot.status) {
