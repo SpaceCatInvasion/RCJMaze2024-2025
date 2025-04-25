@@ -125,8 +125,20 @@ void loop() {
 //   // delay(250);
 
 
-drop(true);
-drop(false);
+// drop(true);
+// drop(false);
+int temp;
+while(1){
+  switch((temp=getColor())){
+    case WHITE: Serial.println(" WHITE"); break;
+    case BLACK: Serial.println(" BLACK"); break;
+    case BLUE: Serial.println(" BLUE"); break;
+    case RED: Serial.println(" RED"); break;
+    case SILVER: Serial.println(" SILVER"); break;
+    case UNK: Serial.println(" UNKNOWN"); break;
+    default: Serial.print(" confusion "); Serial.println(temp);
+  }
+}
 
 /*
 
