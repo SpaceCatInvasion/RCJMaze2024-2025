@@ -186,6 +186,9 @@ ReturnError Robot::robotForward(double cm) {
 #endif
     if (!(colorIter++ % 25)) {
       switch (getColor()) {
+        case BLUE:
+          stop_motors();
+          
         case BLACK:
           stop_motors();
           delay(200);

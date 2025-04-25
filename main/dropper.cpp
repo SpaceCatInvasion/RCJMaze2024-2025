@@ -32,7 +32,7 @@ void drop(bool onLeft){
   servo.write(onLeft?30:150);
   digitalWrite(DIR, LOW);
 
-  moveStepper(137);
+  moveStepper(145);
   for(int i= 0; i < 8; i++){
     digitalWrite(DIR, HIGH);
     moveStepper(20);

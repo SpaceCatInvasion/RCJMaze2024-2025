@@ -125,6 +125,11 @@ void loop() {
 //   // delay(250);
 
 
+drop(true);
+drop(false);
+
+/*
+
 
   #ifdef CAM_ON
     if (interrupted) {
@@ -189,7 +194,7 @@ void loop() {
   Serial.print("Ended at point ");
   printPoint(robot.pos);
 
-
+*/
 
 // printColorSensorData();
 
