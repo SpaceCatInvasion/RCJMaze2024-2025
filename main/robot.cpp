@@ -131,12 +131,9 @@ ReturnError Robot::robotForward(double cm) {
       backwardCm(FORWARD_MOVE_SPEED, encToCm(enc) + 1);
       return BLACKTILE;
     }
-
-#ifdef CAM_ON
     if (interrupted) {
       interruptFunc();
     }
-#endif
 #ifdef RAMP_ON
     // Serial.print("Ramp Tilt: "); Serial.println(abs(getTilt()));
     if (abs(getTilt()) > RAMP_TILT_THRESH) {
@@ -155,11 +152,9 @@ ReturnError Robot::robotForward(double cm) {
       float angle = getTilt();
       int calcIter = 0;
       while ((abs(getTilt())) > RAMP_TILT_THRESH) {
-#ifdef CAM_ON
         if (interrupted) {
           interruptFunc();
         }
-#endif
         if (!(calcIter++ % 10)) {
           forward(RAMP_MOVE_SPEED * (1 + 0.01 * (angle - 20)));  // PID
           distForward += encToCm(enc - prevEnc) * cos((aToR(angle = getTilt())));
@@ -463,7 +458,6 @@ void Robot::turn_to(int deg) {
   if (err > 180) err -= 360;
   if (err < -180) err += 360;
   while (err > 2 || err < -2) {
-#ifdef CAM_ON
     if (interrupted) {
       stop_motors();
       digitalWrite(6, HIGH);
@@ -485,7 +479,6 @@ void Robot::turn_to(int deg) {
       delay(500);
       interruptFunc();
     }
-#endif
     lmotors((err > 0 ? BASE_TURN_SPEED : -BASE_TURN_SPEED));
     rmotors((err > 0 ? -BASE_TURN_SPEED : BASE_TURN_SPEED));
     err = deg - getBNO();

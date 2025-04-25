@@ -1,5 +1,5 @@
 #pragma once
-#include <Adafruit_NeoPXL8.h>
+#include <Arduino.h>
 
 void blink(int amt = 5);
 void ledInit();

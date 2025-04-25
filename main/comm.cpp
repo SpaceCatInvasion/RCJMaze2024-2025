@@ -5,6 +5,7 @@ volatile bool interrupted = false;
 void setFlag(){
   stop_motors();
   interrupted = true;
+  Serial.println("INTERRUPTED");
 }
 
 void interruptFunc() {

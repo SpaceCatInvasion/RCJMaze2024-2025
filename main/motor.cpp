@@ -31,8 +31,6 @@ void rmotors(int speed) {
 }
 
 void forward(int speed) {
-  Serial.print("encs: ");
-  Serial.println(enc);
   lmotors(speed);
   rmotors(speed);
 }
