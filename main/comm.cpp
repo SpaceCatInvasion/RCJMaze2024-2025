@@ -2,7 +2,9 @@
 
 
 volatile bool interrupted = false;
-int restartPi = 0;
+int restartPi = -1;
+bool doVictims = true;
+bool goingForward = false;
 void setFlag(){
   stop_motors();
   interrupted = true;
@@ -11,6 +13,11 @@ void setFlag(){
 
 void interruptFunc() {
   Serial.println("Interrupted!");
+  if(!doVictims||restartPi!=-1){
+    Serial.println("NO LIKEY INTERRUPT");
+    Serial1.print("n");
+    return;
+  }
   stop_motors();
   while(Serial1.available()) Serial1.read();
   Serial1.print("a");

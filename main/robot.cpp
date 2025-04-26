@@ -114,6 +114,7 @@ double Robot::sideAlignment() {
  * @return Whether or not the robot finds a special case (e.g. ramp, black tile)
  */
 ReturnError Robot::robotForward(double cm) {
+  goingForward = true;
   Serial.print("CM:");
   Serial.println(cm);
   enc = 0;
@@ -330,24 +331,29 @@ ReturnError Robot::moveRobot(Direction dir) {
       // Serial.println(abs(enc));
       // Serial.println(abs(enc));
     case RAMP:
+      goingForward = false;
       int back;
       while (readTOF(BACK_TOF) < 15) forward(60);
       stop_motors();
       delay(500);
       return RAMP;
     case BLACKTILE:
+      goingForward = false;
       stop_motors();
       delay(500);
       return BLACKTILE;
     case REDTILE:
+      goingForward = false;
       stop_motors();
       delay(500);
       return REDTILE;
     case BLUETILE:
+      goingForward = false;
       stop_motors();
       delay(5000);
     case GOOD:
     default:
+      goingForward = false;
       stop_motors();
       delay(200);
       turn_to(directionAngle(dir));
@@ -367,7 +373,17 @@ ReturnError Robot::moveRobot(Direction dir) {
 ReturnError Robot::moveDirections(std::vector<Direction> directions) {
   if (directions.empty()) return NOMOVES;
   ReturnError moveStatus = GOOD;
+  int numLeft = directions.size();
+  bool trigger = false;
   for (Direction d : directions) {
+    if(--numLeft){
+      doVictims = false;
+      trigger = true;
+    }
+    else{
+      doVictims = true;
+      if(trigger) restartPi = cmToEnc(5);
+    }
     printDir(d);
     pos = nextPoint(pos, d);
     switch ((moveStatus = moveRobot(d))) {

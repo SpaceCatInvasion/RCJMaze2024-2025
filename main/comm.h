@@ -8,5 +8,7 @@
 
 extern volatile bool interrupted;
 extern int restartPi;
+extern bool doVictims;
+extern bool goingForward;
 void interruptFunc();
 void commBegin();

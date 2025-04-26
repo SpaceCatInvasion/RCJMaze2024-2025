@@ -16,7 +16,7 @@ void enc_update() {
   }
   else{
     enc++;
-    if(restartPi>0) restartPi--;
+    if(restartPi>0&&goingForward) restartPi--;
   }
 }
 
