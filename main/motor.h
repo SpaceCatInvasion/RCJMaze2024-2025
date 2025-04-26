@@ -1,6 +1,7 @@
 #pragma once
 #include "robot.h"
 #include "pins.h"
+#include "comm.h"
 
 #define kP 5
 #define kD 1

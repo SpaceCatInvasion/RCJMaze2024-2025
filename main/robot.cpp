@@ -122,7 +122,15 @@ ReturnError Robot::robotForward(double cm) {
   // Serial.print("enc: ");
   // Serial.println(enc);
   while (enc < cmToEnc(cm)) {
-    if (encToCm(enc) > (cm * .85) && readTOF(FRONT_TOF) < 10) break;
+    int temptof = readTOF(FRONT_TOF);
+    // Serial.print("Cm traveled: ");
+    // Serial.print(encToCm(enc));
+    // Serial.print(", Goal: ");
+    // Serial.print(cm);
+    // Serial.print(", Front TOF: ");
+    // Serial.println(temptof);
+
+    if (encToCm(enc) > (cm * .7) && temptof < 8) break;
     // Serial.print("goal: ");
     // Serial.println(cmToEnc(cm));
     // Serial.print("enc: ");
@@ -134,6 +142,10 @@ ReturnError Robot::robotForward(double cm) {
     }
     if (interrupted) {
       interruptFunc();
+    }
+    if (restartPi == 0) {
+      restartPi--;
+      Serial1.print("r");
     }
 #ifdef RAMP_ON
     // Serial.print("Ramp Tilt: "); Serial.println(abs(getTilt()));
@@ -170,14 +182,24 @@ ReturnError Robot::robotForward(double cm) {
           prevEnc = enc;
         }
       }
-      distForward *= 1.07;  // tested error
+      distForward *= .9;  // tested error
       if (!incline) distForward += 10;
       Serial.print("Dist forward: ");
       Serial.println(distForward);
+      
       rampTilesForward = distForward / 30;
       if ((int)distForward % TILE_LENGTH > 15) rampTilesForward++;
       while (abs(getTilt()) > 5) {
         forward(RAMP_MOVE_SPEED * (.75 + 0.04 * (angle)));
+      }
+      if (distForward < 20) {
+        Serial.println("Stairs?");
+        forwardCm(40, incline?20:10);
+        Serial.println("Did adjust");
+        stop_motors();
+        delay(500);
+        rampTilesForward = incline?1:0;
+        return RAMP;
       }
       forwardCm(60, 5);
       stop_motors();
@@ -188,10 +210,10 @@ ReturnError Robot::robotForward(double cm) {
     if (!(colorIter++ % 25)) {
       switch (getColor()) {
         case BLUE:
-          if(encToCm(enc)<20||blueTrigger) break;
+          if (encToCm(enc) < 20 || blueTrigger) break;
           stop_motors();
           delay(200);
-          if(getColor()==BLUE){
+          if (getColor() == BLUE) {
             blueTrigger = true;
           }
           break;
@@ -230,7 +252,7 @@ ReturnError Robot::robotForward(double cm) {
   enc = 0;
   stop_motors();
   delay(10);
-  if(blueTrigger) return BLUETILE;
+  if (blueTrigger) return BLUETILE;
   return GOOD;
 }
 
@@ -308,7 +330,8 @@ ReturnError Robot::moveRobot(Direction dir) {
       // Serial.println(abs(enc));
       // Serial.println(abs(enc));
     case RAMP:
-      while(readTOF(BACK_TOF)>15) forward(60);
+      int back;
+      while (readTOF(BACK_TOF) < 15) forward(60);
       stop_motors();
       delay(500);
       return RAMP;
@@ -347,7 +370,7 @@ ReturnError Robot::moveDirections(std::vector<Direction> directions) {
   for (Direction d : directions) {
     printDir(d);
     pos = nextPoint(pos, d);
-    switch ((moveStatus=moveRobot(d))) {
+    switch ((moveStatus = moveRobot(d))) {
       case BLACKTILE:
         return BLACKTILE;
     }
@@ -472,23 +495,6 @@ void Robot::turn_to(int deg) {
   while (err > 2 || err < -2) {
     if (interrupted) {
       stop_motors();
-      digitalWrite(6, HIGH);
-      delay(500);
-
-      digitalWrite(6, LOW);
-      delay(500);
-
-      digitalWrite(6, HIGH);
-      delay(500);
-
-      digitalWrite(6, LOW);
-      delay(500);
-
-      digitalWrite(6, HIGH);
-      delay(500);
-
-      digitalWrite(6, LOW);
-      delay(500);
       interruptFunc();
     }
     lmotors((err > 0 ? BASE_TURN_SPEED : -BASE_TURN_SPEED));

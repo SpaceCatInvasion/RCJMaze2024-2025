@@ -7,5 +7,6 @@
 #include "pins.h"
 
 extern volatile bool interrupted;
+extern int restartPi;
 void interruptFunc();
 void commBegin();

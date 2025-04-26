@@ -11,10 +11,13 @@ volatile int enc = 0;
 
 
 void enc_update() {
-  if (digitalRead(ENC_PIN) == HIGH)
+  if (digitalRead(ENC_PIN) == HIGH){
     enc--;
-  else
+  }
+  else{
     enc++;
+    if(restartPi>0) restartPi--;
+  }
 }
 
 void printEncs() {

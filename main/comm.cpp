@@ -2,6 +2,7 @@
 
 
 volatile bool interrupted = false;
+int restartPi = 0;
 void setFlag(){
   stop_motors();
   interrupted = true;
@@ -10,21 +11,33 @@ void setFlag(){
 
 void interruptFunc() {
   Serial.println("Interrupted!");
-  stop_motors(); delay(500);
+  stop_motors();
+  while(Serial1.available()) Serial1.read();
+  Serial1.print("a");
+  // stop_motors(); delay(500);
  // forwardCm(30,8);
-  stop_motors(); delay(250);
   // while (Serial1.available()) Serial1.read();  // clear buffer
-  while (!Serial1.available()) Serial.println("waiting1");
+  unsigned long time = millis(); 
+  while (!Serial1.available()) {
+    if(millis()-time>1000){
+      Serial.println("Timed out");
+      Serial1.print("n");
+      interrupted = false;
+      return;
+    }
+    Serial.println("waiting1");
+  }
   char side = (char)Serial1.read();
   while (!Serial1.available()) Serial.println("waiting2");
   char vic = (char)Serial1.read();
   Serial.print("Side: "); Serial.print(side); Serial.print(" Vic: "); Serial.println(vic);
-  
-  dropVictims(side, vic);
+
   blink();
+  dropVictims(side, vic);
  // backwardCm(30,8);
   stop_motors(); delay(250);
   interrupted=false;
+  restartPi = cmToEnc(10);
 }
 
 void commBegin() {

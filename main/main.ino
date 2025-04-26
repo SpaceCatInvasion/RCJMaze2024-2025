@@ -19,6 +19,7 @@ void setup() {
 
   
   Serial.begin(9600);
+  Serial1.begin(9600);
   delay(2000);
   //while(!Serial);
   Serial.println("Serial Connected");
@@ -26,7 +27,8 @@ void setup() {
   while (digitalRead(20) == HIGH)
     ;
 
-
+//pi turn on
+Serial1.print("b");
   //enc init
   pinMode(ENC_PIN, INPUT);
   pinMode(ENC_PIN_INTER, INPUT);
@@ -92,14 +94,13 @@ void setup() {
 int iter = 0;
 void loop() {
 
-
   // std::vector<Direction> directions = {NORTH, NORTH, EAST, EAST, SOUTH, SOUTH, WEST, WEST};
   // robot.moveDirections(directions);
   // Serial.println(getBNO());
-  // getColor();
+  //getColor();
   // printTOFs();
   // forward(50);
-  
+  //printColorSensorData();
 
 
   // forward(100);
@@ -142,7 +143,6 @@ void loop() {
 
 
 
-
   #ifdef CAM_ON
     if (interrupted) {
       interruptFunc();
@@ -163,11 +163,11 @@ void loop() {
           if (robot.status == DANGERZONE) robot.status = BACKTRACKING;
           break;
         case BLACKTILE:
-          maze.maze[robot.pos] |= BLACK;
+          maze.maze[robot.pos] |= BLACKPOINT;
           robot.pos = nextPoint(robot.pos, (Direction)((robot.facing + 2) % 4));  // return robot's position
           break;
         case REDTILE:
-          maze.maze[robot.pos] |= RED;
+          maze.maze[robot.pos] |= REDPOINT;
           robot.pos = nextPoint(robot.pos, (Direction)((robot.facing + 2) % 4));  // return robot's position
           break;
         case RAMP:

@@ -31,10 +31,10 @@ TileColor getColor() {
   Serial.print(" clear: ");
   Serial.print(c);
 
-  if (c > 235) return SILVER;
-  if (r > 60 && g > 60 && b > 60) return WHITE;
+  if (c > 210) return SILVER;
+  if (r > 60 && g > 60 && b > 50) return WHITE;
   if (r > 28) return RED;
-  if (b > 18) return BLUE;
+  if (b > 11) return BLUE;
   return BLACK;
   return UNK;
   // if (c < 10)
