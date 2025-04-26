@@ -88,8 +88,8 @@ std::vector<Direction> Maze::findNextMove() {
     Point next = nextPoint(p, robot->facing);
     if (hasRamp(next, robot->facing) || hasRamp(next, (Direction)((robot->facing + 2) % 4)))  //check if ramp exists
       next = rampConnections[next];
-    if (!hasWall(p, robot->facing) && !bfsVisited[next] && !(maze[next] & BLACK)) {  // Check if the tile infront is valid
-      if (!(robot->status == TRAVERSING && maze[next] & RED)) {                      // Check if tile is in dangerzone
+    if (!hasWall(p, robot->facing) && !bfsVisited[next] && !(maze[next] & BLACKPOINT)) {  // Check if the tile infront is valid
+      if (!(robot->status == TRAVERSING && maze[next] & REDPOINT)) {                      // Check if tile is in dangerzone
         q.push(next);
         if (paths.count(next) == 0) paths[next] = p;
         bfsVisited[next] = 1;
@@ -98,8 +98,8 @@ std::vector<Direction> Maze::findNextMove() {
     next = nextPoint(p, (Direction)((robot->facing + 1) % 4));
     if (hasRamp(next, (Direction)((robot->facing + 1) % 4)) || hasRamp(next, (Direction)((robot->facing + 3) % 4)))
       next = rampConnections[next];
-    if (!hasWall(p, (Direction)((robot->facing + 1) % 4)) && !bfsVisited[next] && !(maze[next] & BLACK)) {
-      if (!(robot->status == TRAVERSING && maze[next] & RED)) {
+    if (!hasWall(p, (Direction)((robot->facing + 1) % 4)) && !bfsVisited[next] && !(maze[next] & BLACKPOINT)) {
+      if (!(robot->status == TRAVERSING && maze[next] & REDPOINT)) {
         q.push(next);
         if (paths.count(next) == 0) paths[next] = p;
         bfsVisited[next] = 1;
@@ -108,8 +108,8 @@ std::vector<Direction> Maze::findNextMove() {
     next = nextPoint(p, (Direction)((robot->facing + 3) % 4));
     if (hasRamp(next, (Direction)((robot->facing + 3) % 4)) || hasRamp(next, (Direction)((robot->facing + 1) % 4)))
       next = rampConnections[next];
-    if (!hasWall(p, (Direction)((robot->facing + 3) % 4)) && !bfsVisited[next] && !(maze[next] & BLACK)) {
-      if (!(robot->status == TRAVERSING && maze[next] & RED)) {
+    if (!hasWall(p, (Direction)((robot->facing + 3) % 4)) && !bfsVisited[next] && !(maze[next] & BLACKPOINT)) {
+      if (!(robot->status == TRAVERSING && maze[next] & REDPOINT)) {
         q.push(next);
         if (paths.count(next) == 0) paths[next] = p;
         bfsVisited[next] = 1;
@@ -118,8 +118,8 @@ std::vector<Direction> Maze::findNextMove() {
     next = nextPoint(p, (Direction)((robot->facing + 2) % 4));
     if (hasRamp(next, (Direction)((robot->facing + 2) % 4)) || hasRamp(next, robot->facing))
       next = rampConnections[next];
-    if (!hasWall(p, (Direction)((robot->facing + 2) % 4)) && !bfsVisited[next] && !(maze[next] & BLACK)) {
-      if (!(robot->status == TRAVERSING && maze[next] & RED)) {
+    if (!hasWall(p, (Direction)((robot->facing + 2) % 4)) && !bfsVisited[next] && !(maze[next] & BLACKPOINT)) {
+      if (!(robot->status == TRAVERSING && maze[next] & REDPOINT)) {
         q.push(next);
         if (paths.count(next) == 0) paths[next] = p;
         bfsVisited[next] = 1;
@@ -175,7 +175,7 @@ std::vector<Direction> Maze::findOrigin() {
     Point next = nextPoint(p, robot->facing);
     if (hasRamp(next, robot->facing) || hasRamp(next, (Direction)((robot->facing + 2) % 4)))  //check if ramp exists
       next = rampConnections[next];
-    if (!hasWall(p, robot->facing) && !bfsVisited[next] && !(maze[next] & BLACK)) {  // Check if the tile infront is valid
+    if (!hasWall(p, robot->facing) && !bfsVisited[next] && !(maze[next] & BLACKPOINT)) {  // Check if the tile infront is valid
       q.push(next);
       if (paths.count(next) == 0) paths[next] = p;
       bfsVisited[next] = 1;
@@ -183,7 +183,7 @@ std::vector<Direction> Maze::findOrigin() {
     next = nextPoint(p, (Direction)((robot->facing + 1) % 4));
     if (hasRamp(next, (Direction)((robot->facing + 1) % 4)) || hasRamp(next, (Direction)((robot->facing + 3) % 4)))
       next = rampConnections[next];
-    if (!hasWall(p, (Direction)((robot->facing + 1) % 4)) && !bfsVisited[next] && !(maze[next] & BLACK)) {
+    if (!hasWall(p, (Direction)((robot->facing + 1) % 4)) && !bfsVisited[next] && !(maze[next] & BLACKPOINT)) {
       q.push(next);
       if (paths.count(next) == 0) paths[next] = p;
       bfsVisited[next] = 1;
@@ -191,7 +191,7 @@ std::vector<Direction> Maze::findOrigin() {
     next = nextPoint(p, (Direction)((robot->facing + 3) % 4));
     if (hasRamp(next, (Direction)((robot->facing + 3) % 4)) || hasRamp(next, (Direction)((robot->facing + 1) % 4)))
       next = rampConnections[next];
-    if (!hasWall(p, (Direction)((robot->facing + 3) % 4)) && !bfsVisited[next] && !(maze[next] & BLACK)) {
+    if (!hasWall(p, (Direction)((robot->facing + 3) % 4)) && !bfsVisited[next] && !(maze[next] & BLACKPOINT)) {
       q.push(next);
       if (paths.count(next) == 0) paths[next] = p;
       bfsVisited[next] = 1;
@@ -199,7 +199,7 @@ std::vector<Direction> Maze::findOrigin() {
     next = nextPoint(p, (Direction)((robot->facing + 2) % 4));
     if (hasRamp(next, (Direction)((robot->facing + 2) % 4)) || hasRamp(next, robot->facing))
       next = rampConnections[next];
-    if (!hasWall(p, (Direction)((robot->facing + 2) % 4)) && !bfsVisited[next] && !(maze[next] & BLACK)) {
+    if (!hasWall(p, (Direction)((robot->facing + 2) % 4)) && !bfsVisited[next] && !(maze[next] & BLACKPOINT)) {
       q.push(next);
       if (paths.count(next) == 0) paths[next] = p;
       bfsVisited[next] = 1;

@@ -1,7 +1,7 @@
 #pragma once
 #include <Arduino.h>
 
-void blink(int amt = 5);
+void blink(int amt = 5, int length = 500);
 void ledInit();
 
 // #define NUM_LEDS 2

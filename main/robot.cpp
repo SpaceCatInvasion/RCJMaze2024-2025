@@ -118,10 +118,11 @@ ReturnError Robot::robotForward(double cm) {
   Serial.println(cm);
   enc = 0;
   int colorIter = 0;
+  bool blueTrigger = false;
   // Serial.print("enc: ");
   // Serial.println(enc);
   while (enc < cmToEnc(cm)) {
-    if (encToCm(enc) > cm * .85 && readTOF(FRONT_TOF) < 10) break;
+    if (encToCm(enc) > (cm * .85) && readTOF(FRONT_TOF) < 10) break;
     // Serial.print("goal: ");
     // Serial.println(cmToEnc(cm));
     // Serial.print("enc: ");
@@ -187,8 +188,13 @@ ReturnError Robot::robotForward(double cm) {
     if (!(colorIter++ % 25)) {
       switch (getColor()) {
         case BLUE:
+          if(encToCm(enc)<20||blueTrigger) break;
           stop_motors();
-          
+          delay(200);
+          if(getColor()==BLUE){
+            blueTrigger = true;
+          }
+          break;
         case BLACK:
           stop_motors();
           delay(200);
@@ -224,6 +230,7 @@ ReturnError Robot::robotForward(double cm) {
   enc = 0;
   stop_motors();
   delay(10);
+  if(blueTrigger) return BLUETILE;
   return GOOD;
 }
 
@@ -272,7 +279,7 @@ Robot::Robot() {
   pos.y = 0;
   pos.z = 0;
   facing = NORTH;
-  status = TRAVERSING;
+  status = DANGERZONE;
 }
 
 /*
@@ -301,6 +308,7 @@ ReturnError Robot::moveRobot(Direction dir) {
       // Serial.println(abs(enc));
       // Serial.println(abs(enc));
     case RAMP:
+      while(readTOF(BACK_TOF)>15) forward(60);
       stop_motors();
       delay(500);
       return RAMP;
@@ -312,6 +320,9 @@ ReturnError Robot::moveRobot(Direction dir) {
       stop_motors();
       delay(500);
       return REDTILE;
+    case BLUETILE:
+      stop_motors();
+      delay(5000);
     case GOOD:
     default:
       stop_motors();
@@ -332,20 +343,18 @@ ReturnError Robot::moveRobot(Direction dir) {
  */
 ReturnError Robot::moveDirections(std::vector<Direction> directions) {
   if (directions.empty()) return NOMOVES;
+  ReturnError moveStatus = GOOD;
   for (Direction d : directions) {
     printDir(d);
     pos = nextPoint(pos, d);
-    ReturnError moveStatus = moveRobot(d);
+    switch ((moveStatus=moveRobot(d))) {
+      case BLACKTILE:
+        return BLACKTILE;
+    }
     stop_motors();
     delay(200);
-    switch (moveStatus) {
-      case RAMP:
-      case REDTILE:
-      case BLACKTILE:
-        return moveStatus;
-    }
   }
-  return GOOD;
+  return moveStatus;
 }
 
 /*

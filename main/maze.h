@@ -28,9 +28,9 @@ typedef short Tile;
 #define EWALL 0x0004
 #define WWALL 0x0008
 #define VISITED 0x0010
-#define BLUE 0x0020
-#define BLACK 0x0040
-#define RED 0x0080
+#define BLUEPOINT 0x0020
+#define BLACKPOINT 0x0040
+#define REDPOINT 0x0080
 #define NRAMP 0x0100
 #define SRAMP 0x0200
 #define ERAMP 0x0400

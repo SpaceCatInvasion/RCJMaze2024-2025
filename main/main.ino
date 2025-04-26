@@ -127,20 +127,20 @@ void loop() {
 
 // drop(true);
 // drop(false);
-int temp;
-while(1){
-  switch((temp=getColor())){
-    case WHITE: Serial.println(" WHITE"); break;
-    case BLACK: Serial.println(" BLACK"); break;
-    case BLUE: Serial.println(" BLUE"); break;
-    case RED: Serial.println(" RED"); break;
-    case SILVER: Serial.println(" SILVER"); break;
-    case UNK: Serial.println(" UNKNOWN"); break;
-    default: Serial.print(" confusion "); Serial.println(temp);
-  }
-}
+// int temp;
+// while(1){
+//   switch((temp=getColor())){
+//     case WHITE: Serial.println(" WHITE"); break;
+//     case BLACK: Serial.println(" BLACK"); break;
+//     case BLUE: Serial.println(" BLUE"); break;
+//     case RED: Serial.println(" RED"); break;
+//     case SILVER: Serial.println(" SILVER"); break;
+//     case UNK: Serial.println(" UNKNOWN"); break;
+//     // default: Serial.print(" confusion "); Serial.println(temp);
+//   }
+// }
 
-/*
+
 
 
   #ifdef CAM_ON
@@ -202,11 +202,14 @@ while(1){
       break;
     case FINISH:
       stop_motors();
+      blink(5,1000);
+      robot.status = END;
+    case END: break;
   }
   Serial.print("Ended at point ");
   printPoint(robot.pos);
 
-*/
+
 
 // printColorSensorData();
 

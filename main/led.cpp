@@ -13,14 +13,14 @@ void ledInit() {
 }
 
 
-void blink(int amt) {
+void blink(int amt, int length) {
 
   for(int i = 0; i < amt; i++) {
   digitalWrite(6, HIGH);
-  delay(500);
+  delay(length);
 
   digitalWrite(6, LOW);
-  delay(500);
+  delay(length);
   }
 
 }

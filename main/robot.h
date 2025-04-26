@@ -62,7 +62,8 @@ enum ReturnError {
   BLACKTILE = 1,
   REDTILE = 2,
   RAMP = 3,
-  NOMOVES = 4
+  NOMOVES = 4,
+  BLUETILE = 5
 };
 
 #define BASE_TURN_SPEED 90
