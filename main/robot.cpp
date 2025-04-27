@@ -208,7 +208,7 @@ ReturnError Robot::robotForward(double cm) {
       return RAMP;
     }
 #endif
-    if (!(colorIter++ % 25)) {
+    if (!(colorIter++ % 5)) {
       switch (getColor()) {
         case BLUE:
           if (blueTrigger) break; //encToCm(enc) < 20 || 
@@ -226,14 +226,16 @@ ReturnError Robot::robotForward(double cm) {
             return BLACKTILE;
           }
           break;
-        // case SILVER:
-        //   if(encToCm(enc)<20||silverTrigger) break;
-        //   stop_motors();
-        //   delay(200);
-        //   if (getColor() == SILVER) {
-        //     silverTrigger = true;
-        //   }
-        //   break;
+        case SILVER:
+          // Serial.println("In silver...");
+          if(encToCm(enc)<20||silverTrigger) break;
+          stop_motors();
+          delay(200);
+          if (getColor() == SILVER) {
+            Serial.println("Triggered Silver");
+            silverTrigger = true;
+          }
+          break;
         case RED:
           if (status == TRAVERSING) {
             stop_motors();
@@ -262,7 +264,7 @@ ReturnError Robot::robotForward(double cm) {
   stop_motors();
   delay(10);
   if (blueTrigger) return BLUETILE;
-  // if (silverTrigger) return SILVERTILE;
+  if (silverTrigger) return SILVERTILE;
   return GOOD;
 }
 
@@ -356,16 +358,16 @@ ReturnError Robot::moveRobot(Direction dir) {
       stop_motors();
       delay(500);
       return REDTILE;
-    // case SILVERTILE:
-    //   goingForward = false;
-    //   stop_motors();
-    //   delay(200);
-    //   turn_to(directionAngle(dir));
-    //   stop_motors();
-    //   delay(200);
-    //   frontAlign();
-    //   backAlign();
-    //   return SILVERTILE;
+    case SILVERTILE:
+      goingForward = false;
+      stop_motors();
+      delay(200);
+      turn_to(directionAngle(dir));
+      stop_motors();
+      delay(200);
+      frontAlign();
+      backAlign();
+      return SILVERTILE;
     case BLUETILE:
       goingForward = false;
       stop_motors();
@@ -407,8 +409,8 @@ ReturnError Robot::moveDirections(std::vector<Direction> directions) {
     switch ((moveStatus = moveRobot(d))) {
       case BLACKTILE:
         return BLACKTILE;
-      // case SILVERTILE:
-      //   return SILVERTILE;
+      case SILVERTILE:
+        return SILVERTILE;
     }
     stop_motors();
     delay(200);

@@ -10,6 +10,26 @@ Maze maze(&robot);
 // #define OLD_BOT
 #define NEW_BOT
 
+void printBits(int c, int amt){
+    for(int i=amt-1;i>=0;i--){
+        Serial.print((c>>i)&1);
+        if(!(i%4)) Serial.print(" ");
+    }
+}
+void printMaze(Maze m){
+  Serial.println("\nTiles:");
+  for(std::pair<Point, Tile> tiles : m.maze){
+    Serial.print("("); Serial.print(tiles.first.x); Serial.print(","); Serial.print(tiles.first.y); Serial.print(","); Serial.print(tiles.first.z); Serial.print("): ");
+    printBits(tiles.second, 16);
+    Serial.println();
+  }
+  Serial.println("Connections:");
+  for(std::pair<Point, Point> connection : maze.rampConnections){
+    Serial.print("("); Serial.print(connection.first.x); Serial.print(","); Serial.print(connection.first.y); Serial.print(","); Serial.print(connection.first.z); Serial.print(") -> ");
+    Serial.print("("); Serial.print(connection.second.x); Serial.print(","); Serial.print(connection.second.y); Serial.print(","); Serial.print(connection.second.z); Serial.println(")");
+  }
+  Serial.println();
+}
 
 void setup() {
 
@@ -24,17 +44,17 @@ void setup() {
   //while(!Serial);
   Serial.println("Serial Connected");
   pinMode(20, INPUT);
-  // pinMode(21, INPUT);
+  pinMode(21, INPUT);
   //file io init
-  // LittleFS.begin();
-  // Serial.println(" file system ready");
+  LittleFS.begin();
+  Serial.println(" file system ready");
   while (digitalRead(20) == HIGH) {
-    // if (digitalRead(21) != HIGH) {
-    //   clearFile();
-    //   break;
-    // }
+    if (digitalRead(21) != HIGH) {
+      clearFile();
+      break;
+    }
   }
-
+  printMaze(maze);
 
   //pi turn on
   commBegin();//serial init
@@ -94,7 +114,8 @@ void setup() {
   ledInit();
 
 
-  // downloadMaze(&maze);
+  downloadMaze(&maze);
+  printMaze(maze);
   maze.updateTile();
   enc = 0;
   Serial.println("Ready to start");
@@ -163,7 +184,7 @@ void loop() {
 
 
 
-  Serial.print("At point ");
+  Serial.print("\nAt point ");
   printPoint(robot.pos);
   switch (robot.status) {
     case TRAVERSING:
@@ -198,10 +219,12 @@ void loop() {
             maze.updateTile();
             break;
           }
-        // case SILVERTILE:
-        //   maze.updateTile();
-        //   uploadMaze(&maze);
-        //   break;
+        case SILVERTILE:
+          maze.updateTile();
+          Serial.println("\nUploading...");
+          printMaze(maze);
+          uploadMaze(&maze);
+          break;
         case GOOD:
           maze.updateTile();
           break;
