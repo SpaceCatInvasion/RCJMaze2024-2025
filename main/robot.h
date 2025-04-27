@@ -7,7 +7,6 @@
 #include "color.h"
 #include "comm.h"
 
-
 #ifdef NEW_BOT
 #define WIDTH 12.6
 #define ENC_PER_ROT 749
@@ -63,7 +62,8 @@ enum ReturnError {
   REDTILE = 2,
   RAMP = 3,
   NOMOVES = 4,
-  BLUETILE = 5
+  BLUETILE = 5,
+  SILVERTILE = 6
 };
 
 #define BASE_TURN_SPEED 90

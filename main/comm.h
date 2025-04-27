@@ -5,6 +5,7 @@
 #include "motor.h"
 #include "led.h"
 #include "pins.h"
+#include "tof.h"
 
 extern volatile bool interrupted;
 extern int restartPi;

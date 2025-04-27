@@ -39,8 +39,10 @@ void interruptFunc() {
   char vic = (char)Serial1.read();
   Serial.print("Side: "); Serial.print(side); Serial.print(" Vic: "); Serial.println(vic);
 
-  blink();
-  dropVictims(side, vic);
+  if((side=='R'&&readTOF(RIGHT_TOF)<20)||(side=='L'&&readTOF(LEFT_TOF)<20)){
+    blink();
+    dropVictims(side, vic);
+  }
  // backwardCm(30,8);
   stop_motors(); delay(250);
   interrupted=false;

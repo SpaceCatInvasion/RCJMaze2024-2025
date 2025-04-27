@@ -5,9 +5,10 @@ const char *filename = "/maze.txt";
 void uploadMaze(Maze *m) {
   File outfile = LittleFS.open(filename, "w");
   if (!outfile) {                         // if failed - maybe forgot to set the Filesystem in IDE
-    Serial.println("fail open outfile");  // or didn't call LittleFS.begin()
-    while (1)
-      ;
+    // Serial.println("fail open outfile");  // or didn't call LittleFS.begin()
+    // while (1)
+    //   ;
+    return;
   }
   Serial.println("Writing to file...");
 
@@ -58,7 +59,10 @@ void downloadMaze(Maze *m) {
     return;
   }
   Serial.println("Reading from file...");
-  if (!infile.available()) return;
+  if (!infile.available()) {
+    Serial.println("Empty file...");
+    return;
+  }
   char buf[6];
   infile.readBytes(buf, 5);  //read robot
   m->robot->pos.x = charToSignedInt(buf[0]);
@@ -93,4 +97,14 @@ void downloadMaze(Maze *m) {
   }
 
   infile.close();
+}
+
+void clearFile(){
+  File closefile = LittleFS.open(filename, "w");
+  if (!closefile) {  // failed - file not there or forgot to create it
+    Serial.println("Failed to open file");
+    return;
+  }
+  Serial.println("Clearing file...");
+  closefile.close();
 }

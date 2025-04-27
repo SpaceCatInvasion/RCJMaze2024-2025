@@ -12,23 +12,35 @@ Maze maze(&robot);
 
 
 void setup() {
-  
+
   //limit switch init
   pinMode(RIGHT_LIMIT_SWITCH_PIN, INPUT_PULLUP);
   pinMode(LEFT_LIMIT_SWITCH_PIN, INPUT_PULLUP);
 
-  
+
   Serial.begin(9600);
   Serial1.begin(9600);
   delay(2000);
   //while(!Serial);
   Serial.println("Serial Connected");
   pinMode(20, INPUT);
-  while (digitalRead(20) == HIGH)
-    ;
+  // pinMode(21, INPUT);
+  //file io init
+  // LittleFS.begin();
+  // Serial.println(" file system ready");
+  while (digitalRead(20) == HIGH) {
+    // if (digitalRead(21) != HIGH) {
+    //   clearFile();
+    //   break;
+    // }
+  }
 
-//pi turn on
-Serial1.print("b");
+
+  //pi turn on
+  commBegin();//serial init
+  Serial.println(" comm ready");
+  Serial1.print("b");
+
   //enc init
   pinMode(ENC_PIN, INPUT);
   pinMode(ENC_PIN_INTER, INPUT);
@@ -63,14 +75,10 @@ Serial1.print("b");
   tofInit();
   Serial.println(" tof ready");
 
-  //serial init
-  commBegin();
-  Serial.println(" comm ready");
+  
   Serial.println(" led ready");
 
-  //file io init
-  LittleFS.begin();
-  Serial.println(" file system ready");
+  
 
 
   //servo init
@@ -85,6 +93,8 @@ Serial1.print("b");
   //led init
   ledInit();
 
+
+  // downloadMaze(&maze);
   maze.updateTile();
   enc = 0;
   Serial.println("Ready to start");
@@ -97,7 +107,7 @@ void loop() {
   // std::vector<Direction> directions = {NORTH, NORTH, EAST, EAST, SOUTH, SOUTH, WEST, WEST};
   // robot.moveDirections(directions);
   // Serial.println(getBNO());
-  //getColor();
+  //Serial.println(getColor());
   // printTOFs();
   // forward(50);
   //printColorSensorData();
@@ -121,35 +131,35 @@ void loop() {
   // stop_motors();
   // delay(1000);
   // backward(60); delay(1000);
-//   Serial.println("foward...");
-//   forward(30);
-//   // delay(250);
+  //   Serial.println("foward...");
+  //   forward(30);
+  //   // delay(250);
 
 
-// drop(true);
-// drop(false);
-// int temp;
-// while(1){
-//   switch((temp=getColor())){
-//     case WHITE: Serial.println(" WHITE"); break;
-//     case BLACK: Serial.println(" BLACK"); break;
-//     case BLUE: Serial.println(" BLUE"); break;
-//     case RED: Serial.println(" RED"); break;
-//     case SILVER: Serial.println(" SILVER"); break;
-//     case UNK: Serial.println(" UNKNOWN"); break;
-//     // default: Serial.print(" confusion "); Serial.println(temp);
-//   }
-// }
+  // drop(true);
+  // drop(false);
+  // int temp;
+  // while(1){
+  //   switch((getColor())){
+  //     case WHITE: Serial.println(" WHITE"); break;
+  //     case BLACK: Serial.println(" BLACK"); break;
+  //     case BLUE: Serial.println(" BLUE"); break;
+  //     case RED: Serial.println(" RED"); break;
+  //     case SILVER: Serial.println(" SILVER"); break;
+  //     case UNK: Serial.println(" UNKNOWN"); break;
+  //     // default: Serial.print(" confusion "); Serial.println(temp);
+  //   }
+  // }
 
 
 
-  #ifdef CAM_ON
-    if (interrupted) {
-      interruptFunc();
-    }
+#ifdef CAM_ON
+  if (interrupted) {
+    interruptFunc();
+  }
 #endif
 
-// printTOFs();
+  // printTOFs();
 
 
 
@@ -188,6 +198,10 @@ void loop() {
             maze.updateTile();
             break;
           }
+        // case SILVERTILE:
+        //   maze.updateTile();
+        //   uploadMaze(&maze);
+        //   break;
         case GOOD:
           maze.updateTile();
           break;
@@ -202,7 +216,7 @@ void loop() {
       break;
     case FINISH:
       stop_motors();
-      blink(5,1000);
+      blink(5, 1000);
       robot.status = END;
     case END: break;
   }
@@ -211,25 +225,25 @@ void loop() {
 
 
 
-// printColorSensorData();
+  // printColorSensorData();
 
-//blink();
-//testForward();
-// delay(175);
-// stop_motors();
-// delay(100);
-// rmotors(75);
-// delay(175);
-// stop_motors();
-// forward(60);
-// delay(20);
-// stop_motors();
-// delay(300);
+  //blink();
+  //testForward();
+  // delay(175);
+  // stop_motors();
+  // delay(100);
+  // rmotors(75);
+  // delay(175);
+  // stop_motors();
+  // forward(60);
+  // delay(20);
+  // stop_motors();
+  // delay(300);
 
-// lmotors(100);
-// rmotors(100);
+  // lmotors(100);
+  // rmotors(100);
 
-//printEncs();
+  //printEncs();
 }
 
 // void setup1(){

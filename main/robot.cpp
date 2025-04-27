@@ -119,7 +119,7 @@ ReturnError Robot::robotForward(double cm) {
   Serial.println(cm);
   enc = 0;
   int colorIter = 0;
-  bool blueTrigger = false;
+  bool blueTrigger = false, silverTrigger = false;
   // Serial.print("enc: ");
   // Serial.println(enc);
   while (enc < cmToEnc(cm)) {
@@ -187,7 +187,7 @@ ReturnError Robot::robotForward(double cm) {
       if (!incline) distForward += 10;
       Serial.print("Dist forward: ");
       Serial.println(distForward);
-      
+
       rampTilesForward = distForward / 30;
       if ((int)distForward % TILE_LENGTH > 15) rampTilesForward++;
       while (abs(getTilt()) > 5) {
@@ -195,11 +195,11 @@ ReturnError Robot::robotForward(double cm) {
       }
       if (distForward < 20) {
         Serial.println("Stairs?");
-        forwardCm(40, incline?20:10);
+        forwardCm(40, incline ? 20 : 10);
         Serial.println("Did adjust");
         stop_motors();
         delay(500);
-        rampTilesForward = incline?1:0;
+        rampTilesForward = incline ? 1 : 0;
         return RAMP;
       }
       forwardCm(60, 5);
@@ -211,7 +211,7 @@ ReturnError Robot::robotForward(double cm) {
     if (!(colorIter++ % 25)) {
       switch (getColor()) {
         case BLUE:
-          if (encToCm(enc) < 20 || blueTrigger) break;
+          if (blueTrigger) break; //encToCm(enc) < 20 || 
           stop_motors();
           delay(200);
           if (getColor() == BLUE) {
@@ -226,6 +226,14 @@ ReturnError Robot::robotForward(double cm) {
             return BLACKTILE;
           }
           break;
+        // case SILVER:
+        //   if(encToCm(enc)<20||silverTrigger) break;
+        //   stop_motors();
+        //   delay(200);
+        //   if (getColor() == SILVER) {
+        //     silverTrigger = true;
+        //   }
+        //   break;
         case RED:
           if (status == TRAVERSING) {
             stop_motors();
@@ -254,6 +262,7 @@ ReturnError Robot::robotForward(double cm) {
   stop_motors();
   delay(10);
   if (blueTrigger) return BLUETILE;
+  // if (silverTrigger) return SILVERTILE;
   return GOOD;
 }
 
@@ -347,6 +356,16 @@ ReturnError Robot::moveRobot(Direction dir) {
       stop_motors();
       delay(500);
       return REDTILE;
+    // case SILVERTILE:
+    //   goingForward = false;
+    //   stop_motors();
+    //   delay(200);
+    //   turn_to(directionAngle(dir));
+    //   stop_motors();
+    //   delay(200);
+    //   frontAlign();
+    //   backAlign();
+    //   return SILVERTILE;
     case BLUETILE:
       goingForward = false;
       stop_motors();
@@ -376,19 +395,20 @@ ReturnError Robot::moveDirections(std::vector<Direction> directions) {
   int numLeft = directions.size();
   bool trigger = false;
   for (Direction d : directions) {
-    if(--numLeft){
+    if (--numLeft) {
       doVictims = false;
       trigger = true;
-    }
-    else{
+    } else {
       doVictims = true;
-      if(trigger) restartPi = cmToEnc(5);
+      if (trigger) restartPi = cmToEnc(5);
     }
     printDir(d);
     pos = nextPoint(pos, d);
     switch ((moveStatus = moveRobot(d))) {
       case BLACKTILE:
         return BLACKTILE;
+      // case SILVERTILE:
+      //   return SILVERTILE;
     }
     stop_motors();
     delay(200);
