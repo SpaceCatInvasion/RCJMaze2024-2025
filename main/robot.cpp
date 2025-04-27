@@ -223,6 +223,7 @@ ReturnError Robot::robotForward(double cm) {
           delay(200);
           if (getColor() == BLACK) {
             backwardCm(FORWARD_MOVE_SPEED, encToCm(enc) + 1);
+            restartPi = cmToEnc(5);
             return BLACKTILE;
           }
           break;
@@ -232,6 +233,7 @@ ReturnError Robot::robotForward(double cm) {
           stop_motors();
           delay(200);
           if (getColor() == SILVER) {
+            tone(BUZZER,400,200);
             Serial.println("Triggered Silver");
             silverTrigger = true;
           }

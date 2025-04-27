@@ -85,12 +85,14 @@ std::vector<Direction> Maze::findNextMove() {
       }
       break;
     }
+    printPoint(p); Serial.print(" connects to -> ");
     Point next = nextPoint(p, robot->facing);
     if (hasRamp(next, robot->facing) || hasRamp(next, (Direction)((robot->facing + 2) % 4)))  //check if ramp exists
       next = rampConnections[next];
     if (!hasWall(p, robot->facing) && !bfsVisited[next] && !(maze[next] & BLACKPOINT)) {  // Check if the tile infront is valid
       if (!(robot->status == TRAVERSING && maze[next] & REDPOINT)) {                      // Check if tile is in dangerzone
         q.push(next);
+        printPoint(next);
         if (paths.count(next) == 0) paths[next] = p;
         bfsVisited[next] = 1;
       }
@@ -101,30 +103,37 @@ std::vector<Direction> Maze::findNextMove() {
     if (!hasWall(p, (Direction)((robot->facing + 1) % 4)) && !bfsVisited[next] && !(maze[next] & BLACKPOINT)) {
       if (!(robot->status == TRAVERSING && maze[next] & REDPOINT)) {
         q.push(next);
+        printPoint(next);
         if (paths.count(next) == 0) paths[next] = p;
         bfsVisited[next] = 1;
       }
     }
     next = nextPoint(p, (Direction)((robot->facing + 3) % 4));
+    
     if (hasRamp(next, (Direction)((robot->facing + 3) % 4)) || hasRamp(next, (Direction)((robot->facing + 1) % 4)))
       next = rampConnections[next];
     if (!hasWall(p, (Direction)((robot->facing + 3) % 4)) && !bfsVisited[next] && !(maze[next] & BLACKPOINT)) {
       if (!(robot->status == TRAVERSING && maze[next] & REDPOINT)) {
         q.push(next);
+        printPoint(next);
         if (paths.count(next) == 0) paths[next] = p;
         bfsVisited[next] = 1;
       }
     }
     next = nextPoint(p, (Direction)((robot->facing + 2) % 4));
+    Serial.print("Looking at "); printPoint(next);
+    Serial.print(hasWall(p, (Direction)((robot->facing + 2) % 4))); Serial.print(bfsVisited[next]); Serial.println((bool)(maze[next] & BLACKPOINT));
     if (hasRamp(next, (Direction)((robot->facing + 2) % 4)) || hasRamp(next, robot->facing))
       next = rampConnections[next];
     if (!hasWall(p, (Direction)((robot->facing + 2) % 4)) && !bfsVisited[next] && !(maze[next] & BLACKPOINT)) {
       if (!(robot->status == TRAVERSING && maze[next] & REDPOINT)) {
         q.push(next);
+        printPoint(next);
         if (paths.count(next) == 0) paths[next] = p;
         bfsVisited[next] = 1;
       }
     }
+    Serial.println();
   }
   if (pathBack.empty()) {
     if (robot->status == TRAVERSING) {

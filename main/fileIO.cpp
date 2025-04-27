@@ -18,7 +18,7 @@ void uploadMaze(Maze *m) {
   buf[0] = (char)(m->robot->pos.x);
   buf[1] = (char)(m->robot->pos.y);
   buf[2] = (char)(m->robot->pos.z);
-  buf[3] = (char)(m->robot->facing);
+  buf[3] = NORTH;//(char)(m->robot->facing);
   buf[4] = (char)(m->robot->status);
   outfile.write(buf, 5);
 

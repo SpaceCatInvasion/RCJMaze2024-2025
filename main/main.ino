@@ -40,7 +40,7 @@ void setup() {
 
   Serial.begin(9600);
   Serial1.begin(9600);
-  delay(2000);
+  delay(500);
   //while(!Serial);
   Serial.println("Serial Connected");
   pinMode(20, INPUT);
@@ -113,9 +113,12 @@ void setup() {
   //led init
   ledInit();
 
+  pinMode(BUZZER,OUTPUT);
+  tone(BUZZER,400,200);
 
   downloadMaze(&maze);
   printMaze(maze);
+  robot.print();
   maze.updateTile();
   enc = 0;
   Serial.println("Ready to start");
@@ -161,16 +164,16 @@ void loop() {
   // drop(false);
   // int temp;
   // while(1){
-  //   switch((getColor())){
-  //     case WHITE: Serial.println(" WHITE"); break;
-  //     case BLACK: Serial.println(" BLACK"); break;
-  //     case BLUE: Serial.println(" BLUE"); break;
-  //     case RED: Serial.println(" RED"); break;
-  //     case SILVER: Serial.println(" SILVER"); break;
-  //     case UNK: Serial.println(" UNKNOWN"); break;
-  //     // default: Serial.print(" confusion "); Serial.println(temp);
-  //   }
-  // }
+    // switch((getColor())){
+    //   case WHITE: Serial.println(" WHITE"); break;
+    //   case BLACK: Serial.println(" BLACK"); break;
+    //   case BLUE: Serial.println(" BLUE"); break;
+    //   case RED: Serial.println(" RED"); break;
+    //   case SILVER: Serial.println(" SILVER"); break;
+    //   case UNK: Serial.println(" UNKNOWN"); break;
+    //   // default: Serial.print(" confusion "); Serial.println(temp);
+    // }
+
 
 
 
@@ -192,6 +195,7 @@ void loop() {
       switch (robot.moveDirections(maze.findNextMove())) {
         case NOMOVES:
           if (robot.status == DANGERZONE) robot.status = BACKTRACKING;
+          Serial.println("Can't find moves");
           break;
         case BLACKTILE:
           maze.maze[robot.pos] |= BLACKPOINT;

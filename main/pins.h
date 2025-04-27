@@ -17,3 +17,4 @@
 #define LEFT_LIMIT_SWITCH_PIN 2
 #define RIGHT_LIMIT_SWITCH_PIN 3
 
+#define BUZZER 22
