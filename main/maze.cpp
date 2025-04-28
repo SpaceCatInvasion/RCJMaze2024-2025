@@ -97,6 +97,18 @@ std::vector<Direction> Maze::findNextMove() {
         bfsVisited[next] = 1;
       }
     }
+    
+    next = nextPoint(p, (Direction)((robot->facing + 3) % 4));
+    if (hasRamp(next, (Direction)((robot->facing + 3) % 4)) || hasRamp(next, (Direction)((robot->facing + 1) % 4)))
+      next = rampConnections[next];
+    if (!hasWall(p, (Direction)((robot->facing + 3) % 4)) && !bfsVisited[next] && !(maze[next] & BLACKPOINT)) {
+      if (!(robot->status == TRAVERSING && maze[next] & REDPOINT)) {
+        q.push(next);
+        printPoint(next);
+        if (paths.count(next) == 0) paths[next] = p;
+        bfsVisited[next] = 1;
+      }
+    }
     next = nextPoint(p, (Direction)((robot->facing + 1) % 4));
     if (hasRamp(next, (Direction)((robot->facing + 1) % 4)) || hasRamp(next, (Direction)((robot->facing + 3) % 4)))
       next = rampConnections[next];
@@ -108,21 +120,7 @@ std::vector<Direction> Maze::findNextMove() {
         bfsVisited[next] = 1;
       }
     }
-    next = nextPoint(p, (Direction)((robot->facing + 3) % 4));
-    
-    if (hasRamp(next, (Direction)((robot->facing + 3) % 4)) || hasRamp(next, (Direction)((robot->facing + 1) % 4)))
-      next = rampConnections[next];
-    if (!hasWall(p, (Direction)((robot->facing + 3) % 4)) && !bfsVisited[next] && !(maze[next] & BLACKPOINT)) {
-      if (!(robot->status == TRAVERSING && maze[next] & REDPOINT)) {
-        q.push(next);
-        printPoint(next);
-        if (paths.count(next) == 0) paths[next] = p;
-        bfsVisited[next] = 1;
-      }
-    }
     next = nextPoint(p, (Direction)((robot->facing + 2) % 4));
-    Serial.print("Looking at "); printPoint(next);
-    Serial.print(hasWall(p, (Direction)((robot->facing + 2) % 4))); Serial.print(bfsVisited[next]); Serial.println((bool)(maze[next] & BLACKPOINT));
     if (hasRamp(next, (Direction)((robot->facing + 2) % 4)) || hasRamp(next, robot->facing))
       next = rampConnections[next];
     if (!hasWall(p, (Direction)((robot->facing + 2) % 4)) && !bfsVisited[next] && !(maze[next] & BLACKPOINT)) {

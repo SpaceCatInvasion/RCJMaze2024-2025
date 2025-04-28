@@ -119,7 +119,7 @@ ReturnError Robot::robotForward(double cm) {
   Serial.println(cm);
   enc = 0;
   int colorIter = 0;
-  bool blueTrigger = false, silverTrigger = false;
+  bool blueTrigger = false, silverTrigger = false, redTrigger = false;
   // Serial.print("enc: ");
   // Serial.println(enc);
   while (enc < cmToEnc(cm)) {
@@ -165,12 +165,17 @@ ReturnError Robot::robotForward(double cm) {
       int prevEnc = 0;
       float angle = getTilt();
       int calcIter = 0;
+      double baseSpeed, tofError;
       while ((abs(getTilt())) > RAMP_TILT_THRESH) {
         if (interrupted) {
           interruptFunc();
         }
         if (!(calcIter++ % 10)) {
-          forward(RAMP_MOVE_SPEED * (1 + 0.01 * (angle - 20)));  // PID
+          baseSpeed = RAMP_MOVE_SPEED * (1 + 0.01 * (angle - 20));  //PID
+          tofError = (double)(30 - TOF_WIDTH) / 2 - readTOF(LEFT_TOF);
+          if(tofError>15||tofError<-15) tofError = 0;
+          lmotors(baseSpeed + tofError * (incline ? 5 : 1));
+          rmotors(baseSpeed - tofError * (incline ? 5 : 1));
           distForward += encToCm(enc - prevEnc) * cos((aToR(angle = getTilt())));
           Serial.print("Enc: ");
           Serial.print(enc);
@@ -187,6 +192,41 @@ ReturnError Robot::robotForward(double cm) {
       if (!incline) distForward += 10;
       Serial.print("Dist forward: ");
       Serial.println(distForward);
+      stop_motors();
+      delay(500);
+      // while (1) {
+      //   switch ((getColor())) {
+      //     case WHITE: Serial.println(" WHITE"); break;
+      //     case BLACK: Serial.println(" BLACK"); break;
+      //     case BLUE: Serial.println(" BLUE"); break;
+      //     case RED: Serial.println(" RED"); break;
+      //     case SILVER: Serial.println(" SILVER"); break;
+      //     case UNK:
+      //       Serial.println(" UNKNOWN");
+      //       break;
+      //       // default: Serial.print(" confusion "); Serial.println(temp);
+      //   }
+      // }
+      switch (getColor()) {
+        case BLUE:
+          blueTrigger = true;
+          tone(BUZZER,400,100);
+          delay(200);
+          tone(BUZZER,500,200);
+          break;
+        case BLACK:
+          tone(BUZZER,200,500);
+          backwardCm(incline?30:40,5);
+          while ((abs(getTilt())) > RAMP_TILT_THRESH){
+            baseSpeed = RAMP_MOVE_SPEED * (1 - 0.01 * (angle - 20));  //PID
+            tofError = (double)(30 - TOF_WIDTH) / 2 - readTOF(LEFT_TOF);
+            if(tofError>15||tofError<-15) tofError = 0;
+            lmotors(-baseSpeed - tofError * (incline ? 1 : 5));
+            rmotors(-baseSpeed + tofError * (incline ? 1 : 5));
+          }
+          backwardCm(incline?40:50,5);
+          return BLACKTILE;
+      }
 
       rampTilesForward = distForward / 30;
       if ((int)distForward % TILE_LENGTH > 15) rampTilesForward++;
@@ -204,37 +244,47 @@ ReturnError Robot::robotForward(double cm) {
       }
       forwardCm(60, 5);
       stop_motors();
-      delay(500);
+      delay(500 + blueTrigger?4500:0);
       return RAMP;
     }
 #endif
     if (!(colorIter++ % 5)) {
       switch (getColor()) {
         case BLUE:
-          if (blueTrigger) break; //encToCm(enc) < 20 || 
+          if (blueTrigger) break;  //encToCm(enc) < 20 ||
           stop_motors();
           delay(200);
           if (getColor() == BLUE) {
             blueTrigger = true;
+            tone(BUZZER,400,100);
+            delay(200);
+            tone(BUZZER,500,200);
           }
           break;
         case BLACK:
+          if(redTrigger) break;
           stop_motors();
           delay(200);
           if (getColor() == BLACK) {
+            tone(BUZZER,200,500);
             backwardCm(FORWARD_MOVE_SPEED, encToCm(enc) + 1);
             restartPi = cmToEnc(5);
+            if(blueTrigger) {
+              stop_motors();
+              delay(5000);
+            }
             return BLACKTILE;
           }
           break;
         case SILVER:
           // Serial.println("In silver...");
-          if(encToCm(enc)<20||silverTrigger) break;
+          if (encToCm(enc) < 20 || silverTrigger) break;
           stop_motors();
           delay(200);
           if (getColor() == SILVER) {
-            tone(BUZZER,400,200);
-            Serial.println("Triggered Silver");
+            tone(BUZZER, 400, 200);
+            Serial.print("Triggered Silver at angle ");
+            Serial.println(getTilt());
             silverTrigger = true;
           }
           break;
@@ -247,6 +297,14 @@ ReturnError Robot::robotForward(double cm) {
               return REDTILE;
             }
             break;
+          }
+          else if(!redTrigger){
+            stop_motors();
+            delay(200);
+            if(getColor()==RED){
+              tone(BUZZER, 600, 500);
+              redTrigger = true;
+            }
           }
         case WHITE:
         default:
@@ -532,7 +590,7 @@ void Robot::turn_to(int deg) {
   double err = deg - getBNO();
   if (err > 180) err -= 360;
   if (err < -180) err += 360;
-  while (err > 2 || err < -2) {
+  while (err > 1 || err < -1) {
     if (interrupted) {
       stop_motors();
       interruptFunc();

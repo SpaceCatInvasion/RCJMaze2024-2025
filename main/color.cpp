@@ -33,7 +33,7 @@ TileColor getColor() {
 
   if (c > 220) return SILVER;
   if (r > 60 && g > 60 && b > 50) return WHITE;
-  if (r > 28) return RED;
+  if (r > 35&&g<35&&b<35) return RED;
   if (b > 15) return BLUE;
   return BLACK;
   return UNK;

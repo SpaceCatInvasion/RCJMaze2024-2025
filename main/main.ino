@@ -164,16 +164,16 @@ void loop() {
   // drop(false);
   // int temp;
   // while(1){
-    // switch((getColor())){
-    //   case WHITE: Serial.println(" WHITE"); break;
-    //   case BLACK: Serial.println(" BLACK"); break;
-    //   case BLUE: Serial.println(" BLUE"); break;
-    //   case RED: Serial.println(" RED"); break;
-    //   case SILVER: Serial.println(" SILVER"); break;
-    //   case UNK: Serial.println(" UNKNOWN"); break;
-    //   // default: Serial.print(" confusion "); Serial.println(temp);
-    // }
-
+  //   switch((getColor())){
+  //     case WHITE: Serial.println(" WHITE"); break;
+  //     case BLACK: Serial.println(" BLACK"); break;
+  //     case BLUE: Serial.println(" BLUE"); break;
+  //     case RED: Serial.println(" RED"); break;
+  //     case SILVER: Serial.println(" SILVER"); break;
+  //     case UNK: Serial.println(" UNKNOWN"); break;
+  //     // default: Serial.print(" confusion "); Serial.println(temp);
+  //   }
+  // }
 
 
 
