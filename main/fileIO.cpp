@@ -3,11 +3,13 @@
 const char *filename = "/maze.txt";
 
 void uploadMaze(Maze *m) {
+  Serial.println("Uploading maze...");
   File outfile = LittleFS.open(filename, "w");
   if (!outfile) {                         // if failed - maybe forgot to set the Filesystem in IDE
     // Serial.println("fail open outfile");  // or didn't call LittleFS.begin()
     // while (1)
     //   ;
+    Serial.println("Failed to open outfile");
     return;
   }
   Serial.println("Writing to file...");
@@ -54,8 +56,10 @@ inline int charToSignedInt(char c) {
   return c > 100 ? c - 256 : c;
 }
 void downloadMaze(Maze *m) {
+  Serial.println("Downloading maze...");
   File infile = LittleFS.open(filename, "r");
   if (!infile) {  // failed - file not there or forgot to create it
+    Serial.println("Failed to open infile");
     return;
   }
   Serial.println("Reading from file...");

@@ -18,3 +18,6 @@
 #define RIGHT_LIMIT_SWITCH_PIN 3
 
 #define BUZZER 22
+
+#define START_BUTTON 20
+#define CLEAR_BUTTON 21

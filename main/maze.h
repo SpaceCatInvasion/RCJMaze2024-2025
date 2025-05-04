@@ -53,3 +53,4 @@ public:
   void AddWall(Point p, Direction d);
 };
 void clearTile(Tile* t);
+void printMaze(Maze* m);

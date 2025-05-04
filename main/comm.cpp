@@ -55,4 +55,5 @@ void commBegin() {
   Serial1.begin(115200);
   pinMode(INTERRUPT_PIN, INPUT);
   attachInterrupt(digitalPinToInterrupt(INTERRUPT_PIN), setFlag, RISING);
+  Serial1.print("b");
 }

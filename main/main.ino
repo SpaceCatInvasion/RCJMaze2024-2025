@@ -10,26 +10,7 @@ Maze maze(&robot);
 // #define OLD_BOT
 #define NEW_BOT
 
-void printBits(int c, int amt){
-    for(int i=amt-1;i>=0;i--){
-        Serial.print((c>>i)&1);
-        if(!(i%4)) Serial.print(" ");
-    }
-}
-void printMaze(Maze m){
-  Serial.println("\nTiles:");
-  for(std::pair<Point, Tile> tiles : m.maze){
-    Serial.print("("); Serial.print(tiles.first.x); Serial.print(","); Serial.print(tiles.first.y); Serial.print(","); Serial.print(tiles.first.z); Serial.print("): ");
-    printBits(tiles.second, 16);
-    Serial.println();
-  }
-  Serial.println("Connections:");
-  for(std::pair<Point, Point> connection : maze.rampConnections){
-    Serial.print("("); Serial.print(connection.first.x); Serial.print(","); Serial.print(connection.first.y); Serial.print(","); Serial.print(connection.first.z); Serial.print(") -> ");
-    Serial.print("("); Serial.print(connection.second.x); Serial.print(","); Serial.print(connection.second.y); Serial.print(","); Serial.print(connection.second.z); Serial.println(")");
-  }
-  Serial.println();
-}
+
 
 void setup() {
 
@@ -41,25 +22,30 @@ void setup() {
   Serial.begin(9600);
   Serial1.begin(9600);
   delay(500);
-  //while(!Serial);
   Serial.println("Serial Connected");
-  pinMode(20, INPUT);
-  pinMode(21, INPUT);
+  pinMode(START_BUTTON, INPUT);
+  pinMode(CLEAR_BUTTON, INPUT);
+
   //file io init
   LittleFS.begin();
   Serial.println(" file system ready");
-  while (digitalRead(20) == HIGH) {
-    if (digitalRead(21) != HIGH) {
+
+  //buzzer init
+  pinMode(BUZZER, OUTPUT);
+  tone(BUZZER, 400, 200);
+  Serial.println(" buzzer ready");
+
+  while (digitalRead(START_BUTTON) == HIGH) {
+    if (digitalRead(CLEAR_BUTTON) != HIGH) {
       clearFile();
       break;
     }
   }
-  printMaze(maze);
+  printMaze(&maze);
 
-  //pi turn on
-  commBegin();//serial init
+  //comm init + start pi code
+  commBegin();  //serial init
   Serial.println(" comm ready");
-  Serial1.print("b");
 
   //enc init
   pinMode(ENC_PIN, INPUT);
@@ -81,25 +67,17 @@ void setup() {
   colorBegin();
   Serial.println(" color ready");
 
-
-
-
   //imu init
   if (!bno.begin(OPERATION_MODE_IMUPLUS)) {
     Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
     while (1)
       ;
   }
+  Serial.println(" bno ready");
 
   //tof init
   tofInit();
   Serial.println(" tof ready");
-
-  
-  Serial.println(" led ready");
-
-  
-
 
   //servo init
   servo.attach(SERVO_PIN);
@@ -112,12 +90,12 @@ void setup() {
 
   //led init
   ledInit();
+  Serial.println(" led ready");
 
-  pinMode(BUZZER,OUTPUT);
-  tone(BUZZER,400,200);
+  tone(BUZZER, 400, 200);
 
   downloadMaze(&maze);
-  printMaze(maze);
+  printMaze(&maze);
   robot.print();
   maze.updateTile();
   enc = 0;
@@ -226,7 +204,7 @@ void loop() {
         case SILVERTILE:
           maze.updateTile();
           Serial.println("\nUploading...");
-          printMaze(maze);
+          printMaze(&maze);
           uploadMaze(&maze);
           break;
         case GOOD:
@@ -237,7 +215,8 @@ void loop() {
     case BACKTRACKING:
       Serial.println("Backtracking");
       stop_motors();
-      delay(5000);
+      tone(BUZZER, 700, 1000);
+      delay(2000);
       robot.moveDirections(maze.findOrigin());
       robot.status = FINISH;
       break;

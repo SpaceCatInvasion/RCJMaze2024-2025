@@ -85,7 +85,8 @@ std::vector<Direction> Maze::findNextMove() {
       }
       break;
     }
-    printPoint(p); Serial.print(" connects to -> ");
+    printPoint(p);
+    Serial.print(" connects to -> ");
     Point next = nextPoint(p, robot->facing);
     if (hasRamp(next, robot->facing) || hasRamp(next, (Direction)((robot->facing + 2) % 4)))  //check if ramp exists
       next = rampConnections[next];
@@ -97,7 +98,7 @@ std::vector<Direction> Maze::findNextMove() {
         bfsVisited[next] = 1;
       }
     }
-    
+
     next = nextPoint(p, (Direction)((robot->facing + 3) % 4));
     if (hasRamp(next, (Direction)((robot->facing + 3) % 4)) || hasRamp(next, (Direction)((robot->facing + 1) % 4)))
       next = rampConnections[next];
@@ -144,7 +145,7 @@ std::vector<Direction> Maze::findNextMove() {
 }
 
 /*
- * Find the next closest unvisited tile and return the directions to it
+ * Find the origin and return the directions to it
  *
  * @param None
  * @return Vector of the cardinal directions needed to get to the next unvisited tile
@@ -307,4 +308,46 @@ void Maze::AddWall(Point p, Direction d) {
       maze[next] |= EWALL;
       break;
   }
+}
+
+void printBits(int c, int amt) {
+  for (int i = amt - 1; i >= 0; i--) {
+    Serial.print((c >> i) & 1);
+    if (!(i % 4)) Serial.print(" ");
+  }
+}
+void printMaze(Maze* m) {
+  Serial.println("\nPRINTING MAZE...");
+  Serial.println("Tiles:");
+  if (m->maze.empty()) Serial.println("EMPTY");
+  for (std::pair<Point, Tile> tiles : m->maze) {
+    Serial.print("(");
+    Serial.print(tiles.first.x);
+    Serial.print(",");
+    Serial.print(tiles.first.y);
+    Serial.print(",");
+    Serial.print(tiles.first.z);
+    Serial.print("): ");
+    printBits(tiles.second, 16);
+    Serial.println();
+  }
+  Serial.println("Connections:");
+  if (m->rampConnections.empty()) Serial.println("EMPTY");
+  for (std::pair<Point, Point> connection : m->rampConnections) {
+    Serial.print("(");
+    Serial.print(connection.first.x);
+    Serial.print(",");
+    Serial.print(connection.first.y);
+    Serial.print(",");
+    Serial.print(connection.first.z);
+    Serial.print(") -> ");
+    Serial.print("(");
+    Serial.print(connection.second.x);
+    Serial.print(",");
+    Serial.print(connection.second.y);
+    Serial.print(",");
+    Serial.print(connection.second.z);
+    Serial.println(")");
+  }
+  Serial.println();
 }
