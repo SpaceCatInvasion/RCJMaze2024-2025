@@ -80,6 +80,8 @@ public:
   ReturnError moveDirections(std::vector<Direction> directions);
   ReturnError moveRobot(Direction dir);
   double sideAlignment();
+  ReturnError rampCase();
+  ReturnError colorCase(bool* blueTrigger, bool* silverTrigger, bool* redTrigger);
   ReturnError robotForward(double cm);
   ReturnError wallTrace(int cm, int speed);
   void turn_to(int deg);
