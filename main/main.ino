@@ -48,18 +48,22 @@ void setup() {
   Serial.println(" comm ready");
 
   //enc init
-  pinMode(ENC_PIN, INPUT);
-  pinMode(ENC_PIN_INTER, INPUT);
-  attachInterrupt(digitalPinToInterrupt(ENC_PIN_INTER), enc_update, RISING);
+  pinMode(ENC_PIN_L, INPUT);
+  pinMode(ENC_PIN_INTER_L, INPUT);
+  attachInterrupt(digitalPinToInterrupt(ENC_PIN_INTER_L), enc_updateL, RISING);
+
+  pinMode(ENC_PIN_R, INPUT);
+  pinMode(ENC_PIN_INTER_R, INPUT);
+  attachInterrupt(digitalPinToInterrupt(ENC_PIN_INTER_R), enc_updateR, RISING);
 
   //i2c init
   Wire.setSCL(SCL_PIN);
   Wire.setSDA(SDA_PIN);
   Wire.begin();
 
-  Wire1.setSCL(SCL_PIN1);
-  Wire1.setSDA(SDA_PIN1);
-  Wire1.begin();
+  // Wire1.setSCL(SCL_PIN1);
+  // Wire1.setSDA(SDA_PIN1);
+  // Wire1.begin();
 
   Serial.println(" i2c ready");
 
@@ -98,7 +102,7 @@ void setup() {
   printMaze(&maze);
   robot.print();
   maze.updateTile();
-  enc = 0;
+  encR = 0;
   Serial.println("Ready to start");
 }
 
@@ -106,6 +110,10 @@ void setup() {
 int iter = 0;
 void loop() {
 
+obstacleTest();
+// trackPos();
+stop_motors();
+delay(10000000);
   // std::vector<Direction> directions = {NORTH, NORTH, EAST, EAST, SOUTH, SOUTH, WEST, WEST};
   // robot.moveDirections(directions);
   // Serial.println(getBNO());
@@ -166,38 +174,38 @@ void loop() {
 
 
   Serial.print("\nAt point ");
-  printPoint(robot.pos);
-  switch (robot.status) {
+  printPoint(robot._pos);
+  switch (robot._status) {
     case TRAVERSING:
     case DANGERZONE:
       switch (robot.moveDirections(maze.findNextMove())) {
         case NOMOVES:
-          if (robot.status == DANGERZONE) robot.status = BACKTRACKING;
+          if (robot._status == DANGERZONE) robot._status = BACKTRACKING;
           Serial.println("Can't find moves");
           break;
         case BLACKTILE:
-          maze.maze[robot.pos] |= BLACKPOINT;
-          robot.pos = nextPoint(robot.pos, (Direction)((robot.facing + 2) % 4));  // return robot's position
+          maze.maze[robot._pos] |= BLACKPOINT;
+          robot._pos = nextPoint(robot._pos, (Direction)((robot._facing + 2) % 4));  // return robot's position
           break;
         case REDTILE:
-          maze.maze[robot.pos] |= REDPOINT;
-          robot.pos = nextPoint(robot.pos, (Direction)((robot.facing + 2) % 4));  // return robot's position
+          maze.maze[robot._pos] |= REDPOINT;
+          robot._pos = nextPoint(robot._pos, (Direction)((robot._facing + 2) % 4));  // return robot's position
           break;
         case RAMP:
           {
-            Point flatExit = nextPoint(robot.pos, robot.facing, rampTilesForward);
+            Point flatExit = nextPoint(robot._pos, robot._facing, rampTilesForward);
             if (incline) flatExit.z++;
             else flatExit.z--;
-            Point finalRamp = nextPoint(flatExit, (Direction)((robot.facing + 2) % 4));
-            maze.rampConnections[robot.pos] = flatExit;
-            maze.rampConnections[finalRamp] = nextPoint(robot.pos, (Direction)((robot.facing + 2) % 4));
-            maze.AddRamp(finalRamp, (Direction)((robot.facing + 2) % 4));
-            maze.AddRamp(robot.pos, robot.facing);
-            maze.AddWall(robot.pos, (Direction)((robot.facing + 1) % 4));
-            maze.AddWall(robot.pos, (Direction)((robot.facing + 3) % 4));
-            maze.AddWall(finalRamp, (Direction)((robot.facing + 1) % 4));
-            maze.AddWall(finalRamp, (Direction)((robot.facing + 3) % 4));
-            robot.pos = flatExit;
+            Point finalRamp = nextPoint(flatExit, (Direction)((robot._facing + 2) % 4));
+            maze.rampConnections[robot._pos] = flatExit;
+            maze.rampConnections[finalRamp] = nextPoint(robot._pos, (Direction)((robot._facing + 2) % 4));
+            maze.AddRamp(finalRamp, (Direction)((robot._facing + 2) % 4));
+            maze.AddRamp(robot._pos, robot._facing);
+            maze.AddWall(robot._pos, (Direction)((robot._facing + 1) % 4));
+            maze.AddWall(robot._pos, (Direction)((robot._facing + 3) % 4));
+            maze.AddWall(finalRamp, (Direction)((robot._facing + 1) % 4));
+            maze.AddWall(finalRamp, (Direction)((robot._facing + 3) % 4));
+            robot._pos = flatExit;
             maze.updateTile();
             break;
           }
@@ -218,16 +226,16 @@ void loop() {
       tone(BUZZER, 700, 1000);
       delay(2000);
       robot.moveDirections(maze.findOrigin());
-      robot.status = FINISH;
+      robot._status = FINISH;
       break;
     case FINISH:
       stop_motors();
       blink(5, 1000);
-      robot.status = END;
+      robot._status = END;
     case END: break;
   }
   Serial.print("Ended at point ");
-  printPoint(robot.pos);
+  printPoint(robot._pos);
 
 
 

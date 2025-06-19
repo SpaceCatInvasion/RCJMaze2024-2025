@@ -15,12 +15,15 @@ Vector2D Vector2D::operator*(double const& d) const {  //scalar multiplication
 double Vector2D::operator*(Vector2D const& obj) const {  //dot product
   return x * obj.x + y * obj.y;
 }
+bool Vector2D::operator==(Vector2D const& v2D) const {
+  return Vector2D(x - v2D.x, y - v2D.y).mag() < _deadzone;
+}
 void Vector2D::print() const {
   Serial.print("<");
   Serial.print(x);
   Serial.print(",");
   Serial.print(y);
-  Serial.println(">");
+  Serial.print(">");
 }
 double Vector2D::mag() const {
   return sqrt(x * x + y * y);

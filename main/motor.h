@@ -6,8 +6,10 @@
 #define kP 5
 #define kD 1
 
-extern volatile int enc;
-void enc_update();
+extern volatile int encR; //front right
+void enc_updateR();
+extern volatile int encL; //front left
+void enc_updateL();
 
 void lmotors(int speed);
 void rmotors(int speed);

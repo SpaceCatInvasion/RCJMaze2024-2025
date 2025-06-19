@@ -17,11 +17,11 @@ void uploadMaze(Maze *m) {
 
   char buf[6];  // print robot
   // x,y,z,facing,status
-  buf[0] = (char)(m->robot->pos.x);
-  buf[1] = (char)(m->robot->pos.y);
-  buf[2] = (char)(m->robot->pos.z);
+  buf[0] = (char)(m->robot->_pos.x);
+  buf[1] = (char)(m->robot->_pos.y);
+  buf[2] = (char)(m->robot->_pos.z);
   buf[3] = NORTH;//(char)(m->robot->facing);
-  buf[4] = (char)(m->robot->status);
+  buf[4] = (char)(m->robot->_status);
   outfile.write(buf, 5);
 
   buf[0] = m->maze.size();  // # of tiles
@@ -69,11 +69,11 @@ void downloadMaze(Maze *m) {
   }
   char buf[6];
   infile.readBytes(buf, 5);  //read robot
-  m->robot->pos.x = charToSignedInt(buf[0]);
-  m->robot->pos.y = charToSignedInt(buf[1]);
-  m->robot->pos.z = charToSignedInt(buf[2]);
-  m->robot->facing = (Direction)buf[3];
-  m->robot->status = (Status)buf[4];
+  m->robot->_pos.x = charToSignedInt(buf[0]);
+  m->robot->_pos.y = charToSignedInt(buf[1]);
+  m->robot->_pos.z = charToSignedInt(buf[2]);
+  m->robot->_facing = (Direction)buf[3];
+  m->robot->_status = (Status)buf[4];
 
   infile.readBytes(buf, 1);           // # of tiles
   m->maze.clear();

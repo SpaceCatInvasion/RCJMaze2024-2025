@@ -7,21 +7,28 @@ Motor frontRight(10, 11);
 Motor backLeft(13, 12);
 Motor backRight(15, 14);
 
-volatile int enc = 0;
-
-
-void enc_update() {
-  if (digitalRead(ENC_PIN) == HIGH){
-    enc--;
+volatile int encR = 0;
+volatile int encL = 0;
+void enc_updateR() {
+  if (digitalRead(ENC_PIN_R) == HIGH){
+    encR--;
   }
   else{
-    enc++;
+    encR++;
     if(restartPi>0&&goingForward) restartPi--;
+  }
+}
+void enc_updateL() {
+  if (digitalRead(ENC_PIN_L) == HIGH){
+    encL++;
+  }
+  else{
+    encL--;
   }
 }
 
 void printEncs() {
-  Serial.println(enc);
+  Serial.print("Left Encoder: "); Serial.print(encL); Serial.print("; Right Encoder: "); Serial.println(encR);
 }
 
 void lmotors(int speed) {
@@ -49,14 +56,14 @@ void stop_motors() {
 }
 
 void forwardCm(int speed, int cm) {
-  enc = 0;
-  while (encToCm(enc) < cm) {
+  encR = 0;
+  while (encToCm(encR) < cm) {
     forward(speed);
   }
 }
 void backwardCm(int speed, int cm) {
-  enc = 0;
-  while (encToCm(enc) > -cm) {
+  encR = 0;
+  while (encToCm(encR) > -cm) {
     backward(speed);
   }
 }
@@ -77,8 +84,8 @@ double encToCm(int enc) {
 
 
 void testForward() {
-  enc = 0;
-  while(enc < ENC_PER_ROT) {
+  encR = 0;
+  while(encR < ENC_PER_ROT) {
     forward(40);
   }
   stop_motors();

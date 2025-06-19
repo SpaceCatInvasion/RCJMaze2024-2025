@@ -6,21 +6,22 @@
 #include <math.h>
 #include "color.h"
 #include "comm.h"
+#include "vector2D.h"
 
-#ifdef NEW_BOT
-#define WIDTH 12.6
+// #ifdef NEW_BOT
+#define WIDTH 12.3
 #define ENC_PER_ROT 749
-#define WHEELDIA 7.4
+#define WHEELDIA 6.9
 #define TOF_WIDTH 12.2
 #define FRONTBACKTOF 19.9
 
-#else
-#define WIDTH 12.15
-#define ENC_PER_ROT 749
-#define WHEELDIA 7.4
-#define TOF_WIDTH 12.55
-#define FRONTBACKTOF 17.6
-#endif
+// #else
+// #define WIDTH 12.15
+// #define ENC_PER_ROT 749
+// #define WHEELDIA 7.4
+// #define TOF_WIDTH 12.55
+// #define FRONTBACKTOF 17.6
+// #endif
 
 #define TILE_MOVE_DIST 32
 #define TILE_LENGTH 30
@@ -63,7 +64,8 @@ enum ReturnError {
   RAMP = 3,
   NOMOVES = 4,
   BLUETILE = 5,
-  SILVERTILE = 6
+  SILVERTILE = 6,
+  WALLOBSTACLE = 7
 };
 
 #define BASE_TURN_SPEED 90
@@ -73,15 +75,16 @@ class Robot {
 private:
 
 public:
-  Point pos;
-  Direction facing;
-  Status status;
+  Point _pos;
+  Direction _facing;
+  Status _status;
   Robot();
   ReturnError moveDirections(std::vector<Direction> directions);
   ReturnError moveRobot(Direction dir);
   double sideAlignment();
   ReturnError rampCase();
   ReturnError colorCase(bool* blueTrigger, bool* silverTrigger, bool* redTrigger);
+  ReturnError objectCase(double cmLeft, double cmGoal);
   ReturnError robotForward(double cm);
   ReturnError wallTrace(int cm, int speed);
   void turn_to(int deg);
@@ -95,3 +98,5 @@ Point nextPoint(Point p, Direction d, int mag = 1);
 int directionAngle(Direction d);
 void printPoint(Point p);
 void printDir(Direction d);
+Vector2D trackPos();
+void obstacleTest();
