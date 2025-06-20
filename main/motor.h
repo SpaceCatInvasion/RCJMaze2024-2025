@@ -31,8 +31,9 @@ class Motor {
 public:
   uint8_t fpin;
   uint8_t rpin;
+  double trim; // so motors move at same speed
   void speed(int percent);
-  Motor(int f, int r);
+  Motor(int f, int r, double t = 1);
 };
 
 // extern Motor m;
