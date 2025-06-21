@@ -1,6 +1,6 @@
-#pragma once
-#include <vl53l7cx_class.h>
-#include "Wire.h"
+#define SerialPort Serial
 
-void lidarInit();
-double getOffsetDueToObject();
+//#define RES4 VL53L7CX_RESOLUTION_4X4
+#define RES8 VL53L7CX_RESOLUTION_8X8
+
+VL53L7CX sensor_vl53l7cx_top(&Wire, 5);
