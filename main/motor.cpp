@@ -2,40 +2,45 @@
 
 //Motor m(11,10);
 
-Motor frontLeft(8, 9);
-Motor frontRight(10, 11);
-Motor backLeft(13, 12);
-Motor backRight(15, 14);
+Motor frontRight(8, 9, .935);
+Motor frontLeft(11, 10, 339.1/351.1 * .935);
+Motor backLeft(12, 13, 339.1/351.1);
+Motor backRight(15, 14, .935);
 
 volatile int encR = 0;
 volatile int encL = 0;
 void enc_updateR() {
-  if (digitalRead(ENC_PIN_R) == HIGH){
+  if (digitalRead(ENC_PIN_R) == HIGH) {
     encR--;
-  }
-  else{
+  } else {
     encR++;
-    if(restartPi>0&&goingForward) restartPi--;
+    if (restartPi > 0 && goingForward) restartPi--;
   }
 }
 void enc_updateL() {
-  if (digitalRead(ENC_PIN_L) == HIGH){
+  if (digitalRead(ENC_PIN_L) == HIGH) {
     encL++;
-  }
-  else{
+  } else {
     encL--;
   }
 }
 
 void printEncs() {
-  Serial.print("Left Encoder: "); Serial.print(encL); Serial.print("; Right Encoder: "); Serial.println(encR);
+  Serial.print("Left Encoder: ");
+  Serial.print(encL);
+  Serial.print("; Right Encoder: ");
+  Serial.println(encR);
 }
 
 void lmotors(int speed) {
+  if (speed > 100) speed = 100;
+  if (speed < -100) speed = -100;
   frontLeft.speed(speed);
   backLeft.speed(speed);
 }
 void rmotors(int speed) {
+  if (speed > 100) speed = 100;
+  if (speed < -100) speed = -100;
   frontRight.speed(speed);
   backRight.speed(speed);
 }
@@ -85,7 +90,7 @@ double encToCm(int enc) {
 
 void testForward() {
   encR = 0;
-  while(encR < ENC_PER_ROT) {
+  while (encR < ENC_PER_ROT) {
     forward(40);
   }
   stop_motors();
@@ -93,7 +98,7 @@ void testForward() {
 }
 
 void Motor::speed(int percent) {
-  int speed = abs(percent) * 255 / 100;
+  int speed = trim * abs(percent) * 255 / 100;
   if (percent > 0) {
     analogWrite(fpin, speed);
     analogWrite(rpin, 0);
@@ -102,7 +107,8 @@ void Motor::speed(int percent) {
     analogWrite(rpin, speed);
   }
 }
-Motor::Motor(int f, int r) {
+Motor::Motor(int f, int r, double t) {
   fpin = f;
   rpin = r;
+  trim = t;
 }
