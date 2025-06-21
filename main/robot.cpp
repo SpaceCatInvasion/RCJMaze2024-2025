@@ -393,6 +393,7 @@ Robot::Robot() {
   _pos.z = 0;
   _facing = NORTH;
   _status = DANGERZONE;
+  _coords = Vector2D(0, 0);
 }
 
 /*
@@ -606,19 +607,18 @@ delay(300);
 void Robot::turn_to(int deg) {
   deg %= 360;
   if (deg < 0) deg += 360;
-  double err = deg - getBNO();
-  if (err > 180) err -= 360;
-  if (err < -180) err += 360;
-  while (err > 1 || err < -1) {
+  double err = 100;  // just to go in loop
+  while (abs(err) > 1) {
+    err = deg - getBNO();
+    if (err > 180) err -= 360;
+    if (err < -180) err += 360;
     if (interrupted) {
       stop_motors();
       interruptFunc();
     }
-    lmotors((err > 0 ? BASE_TURN_SPEED : -BASE_TURN_SPEED));
-    rmotors((err > 0 ? -BASE_TURN_SPEED : BASE_TURN_SPEED));
-    err = deg - getBNO();
-    if (err > 180) err -= 360;
-    if (err < -180) err += 360;
+    lmotors((err > 0 ? BASE_TURN_SPEED : -BASE_TURN_SPEED) + err * TURNKP);
+    rmotors((err > 0 ? -BASE_TURN_SPEED : BASE_TURN_SPEED) - err * TURNKP);
+
     //Serial.print("Error: "); Serial.println(err);
   }
   //Serial.println("DONE");
@@ -766,23 +766,34 @@ void velocityToMovement(Vector2D unitVelocity) {
   lmotors(lspeed);
   rmotors(rspeed);
 }
+Vector2D directionToVector(Direction d) {
+  switch (d) {
+    case NORTH: return Vector2D(0, 1);
+    case SOUTH: return Vector2D(0, -1);
+    case EAST: return Vector2D(1, 0);
+    case WEST: return Vector2D(-1, 0);
+  }
+  return Vector2D(0, 0);
+}
 
 #define FORWARD_WEIGHT 9
-#define FIELD_STRENGTH 18
+#define FIELD_STRENGTH 13
 #define WALL_STRENGTH 5
-#define OBJECT_STRENGTH 20
-#define DELTA_TIME 20 //millis
+#define OBJECT_STRENGTH 10  //untuned
+#define OBJECT_RADIUS 2.5     //untuned
+#define DELTA_TIME 20       //millis
 #define TANK_TURN_DEADZONE 0.2
 void obstacleTest() {
-  Vector2D pos(4, 0), deltapos(0, 0);
-  Vector2D target(-3, 30);
-  Vector2D object(5,22);
+  Vector2D pos(0, 0), deltapos(0, 0);
+  Vector2D target(-5, 30);
+  Vector2D object(5, 20);
   Vector2D velocity = (target + (pos * -1)).normalized() * FORWARD_WEIGHT;
-  Vector2D force(0,0);
+  Vector2D force(0, 0);
   int prevEncL = 0, prevEncR = 0;
   double dl, dr, dCenter, theta;  // theta-clockwise angle from north
   long long timer = millis(), currTime = timer;
-  while (pos.y < target.y) {
+  Vector2D facingVector = directionToVector(NORTH);
+  while (pos * facingVector < target * facingVector) {
     currTime = millis();
     if (currTime - timer > DELTA_TIME) {
       dl = encToCm(encL - prevEncL);
@@ -801,10 +812,10 @@ void obstacleTest() {
       pos = pos + deltapos;
       force = target + (pos * -1);
       force = force.normalized() * FIELD_STRENGTH;
-      force.x+=WALL_STRENGTH/max(0.1,(pos.x+15));
-      force.x+=WALL_STRENGTH/max(0.1,(15-pos.x));
-      force.x += OBJECT_STRENGTH / max(0.01,abs(pos.x-object.x)) * (pos.x<object.x?-1:1);//(dist.x*dist.x+dist.y*dist.y)));
-      velocity = (velocity+force).normalized() * FORWARD_WEIGHT;
+      force.x += WALL_STRENGTH / max(0.1, (pos.x + 15));
+      force.x += WALL_STRENGTH / max(0.1, (15 - pos.x));
+      force.x += OBJECT_STRENGTH / max(0.5, abs(pos.x - object.x) - OBJECT_RADIUS) * (0 < object.x ? -1 : 1);  //(dist.x*dist.x+dist.y*dist.y)));
+      velocity = (velocity + force).normalized() * FORWARD_WEIGHT;
       Serial.print("Force: ");
       force.print();
       Serial.print("; Velocity: ");
@@ -815,4 +826,75 @@ void obstacleTest() {
     }
     velocityToMovement(velocity.normalized());
   }
+}
+
+ReturnError Robot::moveToTarget(Vector2D target, bool clearObjects) {
+  if (clearObjects) _objects.clear();
+  Vector2D roundedPos = Vector2D((int)_coords.x - ((int)_coords.x % 30) + ((int)_coords.x % 30 > 15 ? 30 : 0), (int)_coords.y - ((int)_coords.y % 30) + ((int)_coords.y % 30 > 15 ? 30 : 0));
+  Vector2D deltapos(0, 0);
+  Vector2D velocity = (target - _coords).normalized() * FORWARD_WEIGHT;
+  Vector2D force(0, 0);
+  int prevEncL = 0, prevEncR = 0;
+  encL = 0;
+  encR = 0;
+  double dl, dr, dCenter, theta;  // theta-clockwise angle from north
+  long long timer = millis(), currTime = timer;
+  Vector2D facingVector = directionToVector(_facing);
+  Serial.print("\nStarting Coords: ");
+  _coords.print();
+  Serial.print("\nRounded Coords: ");
+  roundedPos.print();
+  Serial.print("\nFacing: ");
+  facingVector.print();
+  Serial.print("\nTarget: ");
+  target.print();
+  if (clearObjects) Serial.println("\nCleared objects!");
+  else {
+    Serial.println("\nObjects Kept:");
+    for (Vector2D obj : _objects) {
+      obj.print();
+      Serial.println();
+    }
+  }
+  Serial.println();
+  while (_coords * facingVector < target * facingVector) {
+    currTime = millis();
+    if (currTime - timer > DELTA_TIME) {
+      dl = encToCm(encL - prevEncL);
+      dr = encToCm(encR - prevEncR);
+      prevEncL = encL;
+      prevEncR = encR;
+      dCenter = (dl + dr) / 2;
+      theta = aToR(getBNO());
+      deltapos = Vector2D(dCenter * sin(theta), dCenter * cos(theta));
+      timer = millis();
+      if (abs(dl + dr) < TANK_TURN_DEADZONE) {
+        timer = millis();  // still update time
+        continue;          // skip this update
+      }
+      _coords = _coords + deltapos;
+
+      force = (target - _coords).normalized() * FIELD_STRENGTH;
+      // force.x += WALL_STRENGTH / max(0.1, (pos.x + 15));
+      // force.x += WALL_STRENGTH / max(0.1, (15 - pos.x));
+      Vector2D right = directionToVector((Direction)(((int)_facing + 1) % 4));
+      force = force + (right * (WALL_STRENGTH / max(0.1, 15 + abs((_coords - roundedPos) * right))));
+      force = force + (right * (WALL_STRENGTH / max(0.1, 15 - abs((_coords - roundedPos) * right))));
+      Serial.print("Right: "); right.print(); Serial.print("; Left Wall: "); (right * (WALL_STRENGTH /max(0.1,15+abs((_coords-roundedPos)*right)))).print();Serial.print(15+abs((_coords-roundedPos)*right)); Serial.print("; Right Wall: "); (right * (WALL_STRENGTH /max(0.1,15-abs((_coords-roundedPos)*right)))).print(); Serial.print(15-abs((_coords-roundedPos)*right));
+      // force.x += OBJECT_STRENGTH / max(0.5,abs(pos.x-object.x)-OBJECT_RADIUS) * (0<object.x?-1:1);//(dist.x*dist.x+dist.y*dist.y)));
+      for (Vector2D object : _objects) {
+        force = force + (right * (OBJECT_STRENGTH / max(.8, (_coords - object) * right - OBJECT_RADIUS) * ((_coords - object) * right < 0 ? -1 : 1)));
+      }
+      velocity = (velocity + force).normalized() * FORWARD_WEIGHT;
+      Serial.print("Force: ");
+      force.print();
+      Serial.print("; Velocity: ");
+      velocity.print();
+      Serial.print("; Pos: ");
+      _coords.print();
+      Serial.println();
+    }
+    velocityToMovement(velocity.normalized());
+  }
+  return GOOD;
 }

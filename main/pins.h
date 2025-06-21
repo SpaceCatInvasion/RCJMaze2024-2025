@@ -5,6 +5,7 @@
 #define INTERRUPT_PIN 7
 #define TX_PIN 0
 #define RX_PIN 1
+#define LED_PIN 6
 
 #define ENC_PIN_INTER_L 17
 #define ENC_PIN_L 16

@@ -8,7 +8,9 @@ Vector2D::Vector2D(double xval, double yval) {
 Vector2D Vector2D::operator+(Vector2D const& obj) const {
   return Vector2D(x + obj.x, y + obj.y);
 }
-
+Vector2D Vector2D::operator-(Vector2D const& obj) const {
+  return Vector2D(x - obj.x, y - obj.y);
+}
 Vector2D Vector2D::operator*(double const& d) const {  //scalar multiplication
   return Vector2D(x * d, y * d);
 }

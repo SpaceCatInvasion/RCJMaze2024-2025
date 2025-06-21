@@ -11,7 +11,7 @@
 // #ifdef NEW_BOT
 #define WIDTH 12.3
 #define ENC_PER_ROT 749
-#define WHEELDIA 6.9
+#define WHEELDIA 7.7
 #define TOF_WIDTH 12.2
 #define FRONTBACKTOF 19.9
 
@@ -68,8 +68,8 @@ enum ReturnError {
   WALLOBSTACLE = 7
 };
 
-#define BASE_TURN_SPEED 90
-#define TURNKP 0
+#define BASE_TURN_SPEED 60
+#define TURNKP 0.5
 
 class Robot {
 private:
@@ -78,6 +78,8 @@ public:
   Point _pos;
   Direction _facing;
   Status _status;
+  Vector2D _coords;
+  std::vector<Vector2D> _objects;
   Robot();
   ReturnError moveDirections(std::vector<Direction> directions);
   ReturnError moveRobot(Direction dir);
@@ -86,6 +88,7 @@ public:
   ReturnError colorCase(bool* blueTrigger, bool* silverTrigger, bool* redTrigger);
   ReturnError objectCase(double cmLeft, double cmGoal);
   ReturnError robotForward(double cm);
+  ReturnError moveToTarget(Vector2D target, bool clearObjects = false);
   ReturnError wallTrace(int cm, int speed);
   void turn_to(int deg);
   void turn(int deg);
