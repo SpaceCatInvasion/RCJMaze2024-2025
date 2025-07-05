@@ -1123,20 +1123,20 @@ int getAddition() {
       }
     }
   }
-  switch(closestToCenter) {
-    case 0: 
+  switch (closestToCenter) {
+    case 0:
       return -10;
     case 7:
       return 10;
     case 1:
-      return -14; 
+      return -14;
     case 6:
       return 14;
     case 2:
-      return -18; 
+      return -18;
     case 5:
       return 18;
-    case 3: 
+    case 3:
       return -20;
     case 4:
       return 20;
@@ -1148,7 +1148,7 @@ int getAddition() {
 #define FORWARD_WEIGHT 9
 #define FIELD_STRENGTH 13
 #define WALL_STRENGTH 5
-#define OBJECT_STRENGTH 20  //untuned
+#define OBJECT_STRENGTH 10  //untuned
 #define OBJECT_RADIUS 2.5   //untuned
 #define DELTA_TIME 20       //millis
 #define TANK_TURN_DEADZONE 0.2
@@ -1179,7 +1179,7 @@ void obstacleTest() {
   //   target.y = lidary + addition;
   // }
   // Serial.println("two");
-  Vector2D target(lidarx + addition , lidary + 10);
+  Vector2D target(lidarx + addition, lidary + 10);
   Vector2D object(lidarx, lidary + 10);
   Serial.println("three");
 
@@ -1277,22 +1277,24 @@ ReturnError Robot::moveToTarget(Vector2D target, bool clearObjects) {
       // force.x += WALL_STRENGTH / max(0.1, (pos.x + 15));
       // force.x += WALL_STRENGTH / max(0.1, (15 - pos.x));
       Vector2D right = directionToVector((Direction)(((int)_facing + 1) % 4));
-      force = force + (right * (WALL_STRENGTH / max(0.1, 15 + abs((_coords - roundedPos) * right))));
-      force = force + (right * (WALL_STRENGTH / max(0.1, 15 - abs((_coords - roundedPos) * right))));
+      Vector2D rightWall = (right * (WALL_STRENGTH / max(0.3, (TILE_LENGTH - WIDTH) / 2 - ((_coords - roundedPos) * right)))) * -1;
+      Vector2D leftWall = (right * (WALL_STRENGTH / max(0.3, ((_coords - roundedPos) * right) + (TILE_LENGTH - WIDTH) / 2)));
+      force = force + rightWall + leftWall;
       Serial.print("Right: ");
       right.print();
       Serial.print("; Left Wall: ");
-      (right * (WALL_STRENGTH / max(0.1, 15 + abs((_coords - roundedPos) * right)))).print();
-      Serial.print(15 + abs((_coords - roundedPos) * right));
+      leftWall.print();
       Serial.print("; Right Wall: ");
-      (right * (WALL_STRENGTH / max(0.1, 15 - abs((_coords - roundedPos) * right)))).print();
-      Serial.print(15 - abs((_coords - roundedPos) * right));
+      rightWall.print();
       // force.x += OBJECT_STRENGTH / max(0.5,abs(pos.x-object.x)-OBJECT_RADIUS) * (0<object.x?-1:1);//(dist.x*dist.x+dist.y*dist.y)));
       for (Vector2D object : _objects) {
-        force = force + (right * (OBJECT_STRENGTH / max(.8, (_coords - object) * right - OBJECT_RADIUS) * ((_coords - object) * right < 0 ? -1 : 1)));
+        Vector2D objForce = (right * (OBJECT_STRENGTH / max(.8, abs((_coords - object) * right) - OBJECT_RADIUS) * ((_coords - object) * right < 0 ? -1 : 1)));
+        Serial.print("; Object: ");
+        objForce.print();
+        force = force + objForce;
       }
       velocity = (velocity + force).normalized() * FORWARD_WEIGHT;
-      Serial.print("Force: ");
+      Serial.print("; Force: ");
       force.print();
       Serial.print("; Velocity: ");
       velocity.print();
@@ -1302,5 +1304,6 @@ ReturnError Robot::moveToTarget(Vector2D target, bool clearObjects) {
     }
     velocityToMovement(velocity.normalized());
   }
+  Serial.println("Done");
   return GOOD;
 }
