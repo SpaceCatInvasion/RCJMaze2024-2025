@@ -1,4 +1,5 @@
 #include "robot.h"
+#include "lidar.h"
 
 int rampTilesForward = 0;
 bool incline = false;
@@ -776,24 +777,422 @@ Vector2D directionToVector(Direction d) {
   return Vector2D(0, 0);
 }
 
+void selectLIDAR() {
+  int i = 6;
+  Wire.beginTransmission(TCAADDR);
+  Wire.write(1 << i);
+  Wire.endTransmission();
+}
+
+
+void LIDARSetup() {
+  selectLIDAR();
+  sensor_vl53l7cx_top.begin();
+  Serial.println("bgun");
+
+
+  int err = sensor_vl53l7cx_top.init_sensor((uint8_t)0x52);
+  if (err != 0) {
+    Serial.print("ERROR on init_sensor: ");
+    Serial.println(err);
+    while (1)
+      ;
+  } else {
+    Serial.println("init_sensor OKAY");
+  }
+
+
+
+
+
+
+#ifdef RES4
+  sensor_vl53l7cx_top.vl53l7cx_set_resolution(RES4);
+#else
+  sensor_vl53l7cx_top.vl53l7cx_set_resolution(RES8);
+#endif
+
+
+
+
+
+
+  err = sensor_vl53l7cx_top.vl53l7cx_start_ranging();
+
+
+  if (err != 0) {
+    Serial.print("ERROR on start_ranging: ");
+    Serial.println(err);
+    while (1)
+      ;
+  } else {
+    Serial.println("ranging OKAY");
+  }
+}
+
+
+
+
+double getTargetYFromLIDAR() {
+  VL53L7CX_ResultsData Results;
+  uint8_t NewDataReady = 0;
+  uint8_t status;
+
+
+  do {
+    status = sensor_vl53l7cx_top.vl53l7cx_check_data_ready(&NewDataReady);
+  } while (!NewDataReady);
+
+
+  if (status != 0) {
+    Serial.println("ERROR status get_ranging_data");
+    while (1)
+      ;
+  }
+
+
+  if ((!status) && (NewDataReady != 0)) {
+    status = sensor_vl53l7cx_top.vl53l7cx_get_ranging_data(&Results);
+    //print_result(&Results);
+  }
+
+
+  if (status != 0) {
+    Serial.println("ERROR status get_ranging_data");
+    while (1)
+      ;
+  }
+
+
+#ifdef RES4
+  uint8_t res = VL53L7CX_RESOLUTION_4X4;  //(uint8_t)16U
+#else
+  uint8_t res = VL53L7CX_RESOLUTION_8X8;  //(uint8_t)64U
+#endif
+
+
+  uint8_t number_of_zones = res;
+
+
+  uint8_t zones_per_line = (number_of_zones == 16) ? 4 : 8;
+  int i, j, k, l;
+  bool zonesDetected[8] = { false };
+  float cmAwayFromZone[8] = { 0 };
+  char buff[255];
+  bool x = false;
+
+
+
+
+  Serial.println("\n");
+  j = 32;
+  for (k = (zones_per_line - 1); k >= 0; k--) {
+    if (Results.nb_target_detected[j + k] > 0) {
+      if ((long)Results.distance_mm[VL53L7CX_NB_TARGET_PER_ZONE * (j + k)] < 140) {
+        Serial.print("Detected in zone ");
+        Serial.print((j - 32) + k);
+        Serial.print(" at a distance of ");
+        sprintf(buff, "%5d", (long)Results.distance_mm[(VL53L7CX_NB_TARGET_PER_ZONE * (j + k)) + l]);
+        Serial.println(buff);
+        zonesDetected[(j - 32) + k] = true;
+        cmAwayFromZone[(j - 32) + k] = (float)((long)Results.distance_mm[(VL53L7CX_NB_TARGET_PER_ZONE * (j + k)) + l]) / 10.0;
+        x = true;
+      }
+    }
+  }
+  if (x == false) {
+    return -1;
+  }
+
+
+  int closestToCenter = -1;
+  bool rightSide = false;
+  for (int i = 0; i < 4; i++) {
+    if (zonesDetected[i] == true) {
+      closestToCenter = i;
+      rightSide == true;
+    }
+  }
+
+  if (!rightSide) {
+    for (int i = 7; i >= 4; i--) {
+      if (zonesDetected[i] == true) {
+        closestToCenter = i;
+        rightSide == true;
+      }
+    }
+  }
+  Serial.print("Y: ");
+  Serial.println(sin(aToR((double)(120 - ((double)(closestToCenter)*7.5)))) * cmAwayFromZone[closestToCenter]);
+  return sin(aToR((double)(120 - ((double)(closestToCenter)*7.5)))) * cmAwayFromZone[closestToCenter];
+}
+
+
+
+
+double getTargetXFromLIDAR() {
+  VL53L7CX_ResultsData Results;
+  uint8_t NewDataReady = 0;
+  uint8_t status;
+
+
+  do {
+    status = sensor_vl53l7cx_top.vl53l7cx_check_data_ready(&NewDataReady);
+  } while (!NewDataReady);
+
+
+  if (status != 0) {
+    Serial.println("ERROR status get_ranging_data");
+    while (1)
+      ;
+  }
+
+
+  if ((!status) && (NewDataReady != 0)) {
+    status = sensor_vl53l7cx_top.vl53l7cx_get_ranging_data(&Results);
+    //print_result(&Results);
+  }
+
+
+  if (status != 0) {
+    Serial.println("ERROR status get_ranging_data");
+    while (1)
+      ;
+  }
+
+
+#ifdef RES4
+  uint8_t res = VL53L7CX_RESOLUTION_4X4;  //(uint8_t)16U
+#else
+  uint8_t res = VL53L7CX_RESOLUTION_8X8;  //(uint8_t)64U
+#endif
+
+
+  uint8_t number_of_zones = res;
+
+
+  uint8_t zones_per_line = (number_of_zones == 16) ? 4 : 8;
+  int i, j, k, l;
+  bool zonesDetected[8] = { false };
+  float cmAwayFromZone[8] = { 0 };
+  char buff[255];
+  bool x = false;
+
+
+
+
+  Serial.println("\n");
+  j = 32;
+  for (k = (zones_per_line - 1); k >= 0; k--) {
+    if (Results.nb_target_detected[j + k] > 0) {
+      Serial.print((j - 32) + k);
+      Serial.print(": ");
+      Serial.println((long)Results.distance_mm[VL53L7CX_NB_TARGET_PER_ZONE * (j + k)]);
+      if ((long)Results.distance_mm[VL53L7CX_NB_TARGET_PER_ZONE * (j + k)] < 180) {
+        Serial.print("Detected in zone ");
+        Serial.print((j - 32) + k);
+        Serial.print(" at a distance of ");
+        sprintf(buff, "%5d", (long)Results.distance_mm[(VL53L7CX_NB_TARGET_PER_ZONE * (j + k)) + l]);
+        Serial.println(buff);
+        zonesDetected[(j - 32) + k] = true;
+        cmAwayFromZone[(j - 32) + k] = (float)((long)Results.distance_mm[(VL53L7CX_NB_TARGET_PER_ZONE * (j + k)) + l]) / 10.0;
+        x = true;
+      }
+    }
+  }
+  if (x == false) {
+    return -1;
+  }
+
+
+
+
+  int closestToCenter = -1;
+  bool rightSide = false;
+  for (int i = 0; i < 4; i++) {
+    if (zonesDetected[i] == true) {
+      closestToCenter = i;
+      rightSide == true;
+    }
+  }
+
+  if (!rightSide) {
+    for (int i = 7; i >= 4; i--) {
+      if (zonesDetected[i] == true) {
+        closestToCenter = i;
+        rightSide == true;
+      }
+    }
+  }
+  Serial.print("X: ");
+  Serial.println(-1 * cos(aToR(((double)(120 - ((double)(closestToCenter)*7.5))))) * cmAwayFromZone[closestToCenter]);
+  return -1 * cos(aToR((double)(120 - ((double)(closestToCenter)*7.5)))) * cmAwayFromZone[closestToCenter];
+}
+
+int getAddition() {
+  VL53L7CX_ResultsData Results;
+  uint8_t NewDataReady = 0;
+  uint8_t status;
+
+
+  do {
+    status = sensor_vl53l7cx_top.vl53l7cx_check_data_ready(&NewDataReady);
+  } while (!NewDataReady);
+
+
+  if (status != 0) {
+    Serial.println("ERROR status get_ranging_data");
+    while (1)
+      ;
+  }
+
+
+  if ((!status) && (NewDataReady != 0)) {
+    status = sensor_vl53l7cx_top.vl53l7cx_get_ranging_data(&Results);
+    //print_result(&Results);
+  }
+
+
+  if (status != 0) {
+    Serial.println("ERROR status get_ranging_data");
+    while (1)
+      ;
+  }
+
+
+#ifdef RES4
+  uint8_t res = VL53L7CX_RESOLUTION_4X4;  //(uint8_t)16U
+#else
+  uint8_t res = VL53L7CX_RESOLUTION_8X8;  //(uint8_t)64U
+#endif
+
+
+  uint8_t number_of_zones = res;
+
+
+  uint8_t zones_per_line = (number_of_zones == 16) ? 4 : 8;
+  int i, j, k, l;
+  bool zonesDetected[8] = { false };
+  float cmAwayFromZone[8] = { 0 };
+  char buff[255];
+  bool x = false;
+
+
+
+
+  Serial.println("\n");
+  j = 32;
+  for (k = (zones_per_line - 1); k >= 0; k--) {
+    if (Results.nb_target_detected[j + k] > 0) {
+      Serial.print((j - 32) + k);
+      Serial.print(": ");
+      Serial.println((long)Results.distance_mm[VL53L7CX_NB_TARGET_PER_ZONE * (j + k)]);
+      if ((long)Results.distance_mm[VL53L7CX_NB_TARGET_PER_ZONE * (j + k)] < 180) {
+        Serial.print("Detected in zone ");
+        Serial.print((j - 32) + k);
+        Serial.print(" at a distance of ");
+        sprintf(buff, "%5d", (long)Results.distance_mm[(VL53L7CX_NB_TARGET_PER_ZONE * (j + k)) + l]);
+        Serial.println(buff);
+        zonesDetected[(j - 32) + k] = true;
+        cmAwayFromZone[(j - 32) + k] = (float)((long)Results.distance_mm[(VL53L7CX_NB_TARGET_PER_ZONE * (j + k)) + l]) / 10.0;
+        x = true;
+      }
+    }
+  }
+  if (x == false) {
+    return -1;
+  }
+
+
+
+
+  int closestToCenter = -1;
+  bool rightSide = false;
+  for (int i = 0; i < 4; i++) {
+    if (zonesDetected[i] == true) {
+      closestToCenter = i;
+      rightSide == true;
+    }
+  }
+
+  if (!rightSide) {
+    for (int i = 7; i >= 4; i--) {
+      if (zonesDetected[i] == true) {
+        closestToCenter = i;
+        rightSide == true;
+      }
+    }
+  }
+  switch(closestToCenter) {
+    case 0: 
+      return -10;
+    case 7:
+      return 10;
+    case 1:
+      return -14; 
+    case 6:
+      return 14;
+    case 2:
+      return -18; 
+    case 5:
+      return 18;
+    case 3: 
+      return -20;
+    case 4:
+      return 20;
+  }
+  return 15;
+}
+
+
 #define FORWARD_WEIGHT 9
 #define FIELD_STRENGTH 13
 #define WALL_STRENGTH 5
-#define OBJECT_STRENGTH 10  //untuned
-#define OBJECT_RADIUS 2.5     //untuned
+#define OBJECT_STRENGTH 20  //untuned
+#define OBJECT_RADIUS 2.5   //untuned
 #define DELTA_TIME 20       //millis
 #define TANK_TURN_DEADZONE 0.2
 void obstacleTest() {
   Vector2D pos(0, 0), deltapos(0, 0);
-  Vector2D target(-5, 30);
-  Vector2D object(5, 20);
+  Serial.println("one");
+  double lidarx = getTargetXFromLIDAR();
+  double lidary = getTargetYFromLIDAR();
+  int addition = getAddition();
+  // bool state = false;
+  // if(addition < 0) {
+  //   state = true;
+  // }
+  //double lidarx = -2.98;
+  // double lidary = 10.91;
+  // Serial.print("x: ");
+  // Serial.println(lidarx);
+  // Serial.print("y: ");
+  // Serial.println(lidary);
+  // Serial.print("addition: ");
+  // Serial.println(addition);
+  // Vector2D target;
+  // if(lidarx < 0) {
+  //  target.x = lidarx + addition;
+  //  target.y = lidary + addition;
+  // } else {
+  //   target.x = lidarx - addition;
+  //   target.y = lidary + addition;
+  // }
+  // Serial.println("two");
+  Vector2D target(lidarx + addition , lidary + 10);
+  Vector2D object(lidarx, lidary + 10);
+  Serial.println("three");
+
+  //  Vector2D pos(4, 0), deltapos(0, 0);
+  // Vector2D target(-3, 30);
+  // Vector2D object(5,22);
+
   Vector2D velocity = (target + (pos * -1)).normalized() * FORWARD_WEIGHT;
   Vector2D force(0, 0);
   int prevEncL = 0, prevEncR = 0;
   double dl, dr, dCenter, theta;  // theta-clockwise angle from north
   long long timer = millis(), currTime = timer;
-  Vector2D facingVector = directionToVector(NORTH);
-  while (pos * facingVector < target * facingVector) {
+  while (pos.y < target.y) {
     currTime = millis();
     if (currTime - timer > DELTA_TIME) {
       dl = encToCm(encL - prevEncL);
@@ -814,7 +1213,7 @@ void obstacleTest() {
       force = force.normalized() * FIELD_STRENGTH;
       force.x += WALL_STRENGTH / max(0.1, (pos.x + 15));
       force.x += WALL_STRENGTH / max(0.1, (15 - pos.x));
-      force.x += OBJECT_STRENGTH / max(0.5, abs(pos.x - object.x) - OBJECT_RADIUS) * (0 < object.x ? -1 : 1);  //(dist.x*dist.x+dist.y*dist.y)));
+      force.x += OBJECT_STRENGTH / max(0.01, abs(pos.x - object.x)) * (pos.x < object.x ? -1 : 1);  //(dist.x*dist.x+dist.y*dist.y)));
       velocity = (velocity + force).normalized() * FORWARD_WEIGHT;
       Serial.print("Force: ");
       force.print();
@@ -880,7 +1279,14 @@ ReturnError Robot::moveToTarget(Vector2D target, bool clearObjects) {
       Vector2D right = directionToVector((Direction)(((int)_facing + 1) % 4));
       force = force + (right * (WALL_STRENGTH / max(0.1, 15 + abs((_coords - roundedPos) * right))));
       force = force + (right * (WALL_STRENGTH / max(0.1, 15 - abs((_coords - roundedPos) * right))));
-      Serial.print("Right: "); right.print(); Serial.print("; Left Wall: "); (right * (WALL_STRENGTH /max(0.1,15+abs((_coords-roundedPos)*right)))).print();Serial.print(15+abs((_coords-roundedPos)*right)); Serial.print("; Right Wall: "); (right * (WALL_STRENGTH /max(0.1,15-abs((_coords-roundedPos)*right)))).print(); Serial.print(15-abs((_coords-roundedPos)*right));
+      Serial.print("Right: ");
+      right.print();
+      Serial.print("; Left Wall: ");
+      (right * (WALL_STRENGTH / max(0.1, 15 + abs((_coords - roundedPos) * right)))).print();
+      Serial.print(15 + abs((_coords - roundedPos) * right));
+      Serial.print("; Right Wall: ");
+      (right * (WALL_STRENGTH / max(0.1, 15 - abs((_coords - roundedPos) * right)))).print();
+      Serial.print(15 - abs((_coords - roundedPos) * right));
       // force.x += OBJECT_STRENGTH / max(0.5,abs(pos.x-object.x)-OBJECT_RADIUS) * (0<object.x?-1:1);//(dist.x*dist.x+dist.y*dist.y)));
       for (Vector2D object : _objects) {
         force = force + (right * (OBJECT_STRENGTH / max(.8, (_coords - object) * right - OBJECT_RADIUS) * ((_coords - object) * right < 0 ? -1 : 1)));

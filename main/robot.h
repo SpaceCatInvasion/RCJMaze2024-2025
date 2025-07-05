@@ -103,3 +103,7 @@ void printPoint(Point p);
 void printDir(Direction d);
 Vector2D trackPos();
 void obstacleTest();
+double getTargetYFromLIDAR();
+double getTargetYFromLIDAR();
+void selectLIDAR();
+void LIDARSetup();

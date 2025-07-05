@@ -103,6 +103,7 @@ void setup() {
   robot.print();
   maze.updateTile();
   encR = 0;
+ LIDARSetup();
   Serial.println("Ready to start");
 }
 
@@ -125,7 +126,7 @@ void loop() {
 //   }
   
 // }
-// obstacleTest();
+obstacleTest();
 // trackPos();
 // int tempang = 90;
 // while(1){
@@ -138,17 +139,17 @@ void loop() {
 //   // backward(50);
 //   // delay(2000);
 // }
-robot.turn_to(180);
-stop_motors(); delay(500);
-robot._facing = SOUTH;
-robot._coords = Vector2D(0,3);
-robot._objects.push_back(Vector2D(-5,-20));
-robot.moveToTarget(Vector2D(2,-32));
-stop_motors(); delay(500);
-robot.turn_to(270);
-robot._facing = WEST;
-stop_motors(); delay(500);
-robot.moveToTarget(Vector2D(-32,-32));
+// robot.turn_to(180);
+// stop_motors(); delay(500);
+// robot._facing = SOUTH;
+// robot._coords = Vector2D(0,3);
+// robot._objects.push_back(Vector2D(-5,-20));
+// robot.moveToTarget(Vector2D(2,-32));
+// stop_motors(); delay(500);
+// robot.turn_to(270);
+// robot._facing = WEST;
+// stop_motors(); delay(500);
+// robot.moveToTarget(Vector2D(-32,-32));
 stop_motors();
 delay(10000000);
   // std::vector<Direction> directions = {NORTH, NORTH, EAST, EAST, SOUTH, SOUTH, WEST, WEST};
