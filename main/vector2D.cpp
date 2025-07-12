@@ -39,3 +39,6 @@ Vector2D Vector2D::proj(const Vector2D& v2D) const {
   if (fabs(v2D.mag()) < 1e-10) return Vector2D();
   return v2D * ((*this * v2D) / (v2D.y * v2D.y + v2D.x * v2D.x));
 }
+Vector2D Vector2D::transform(double a, double b, double c, double d){
+  return Vector2D(a*x+b*y,c*x+d*y);
+}

@@ -17,4 +17,5 @@ public:
   double mag() const;
   Vector2D normalized() const;
   Vector2D proj(const Vector2D& v2D) const; // this projected onto v2D
+  Vector2D transform(double a, double b, double c, double d); // transformation matrix
 };

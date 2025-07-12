@@ -2,10 +2,16 @@
 
 //Motor m(11,10);
 
-Motor frontRight(8, 9, .935);
-Motor frontLeft(11, 10, 339.1/351.1 * .935);
-Motor backLeft(12, 13, 339.1/351.1);
-Motor backRight(15, 14, .935);
+// ASR bot
+// Motor frontRight(8, 9, .935);
+// Motor frontLeft(11, 10, 339.1/351.1 * .935);
+// Motor backLeft(12, 13, 339.1/351.1);
+// Motor backRight(15, 14, .935);
+
+Motor frontLeft(8, 9, 1);
+Motor frontRight(11, 10,1);
+Motor backLeft(12, 13, 1);
+Motor backRight(15, 14, 1);
 
 volatile int encR = 0;
 volatile int encL = 0;
@@ -111,4 +117,23 @@ Motor::Motor(int f, int r, double t) {
   fpin = f;
   rpin = r;
   trim = t;
+}
+
+void testMotors(int speed) {
+  Serial.println("Front Left");
+  frontLeft.speed(speed);
+  delay(1000);
+  frontLeft.speed(0);
+  Serial.println("Front Right");
+  frontRight.speed(speed);
+  delay(1000);
+  frontLeft.speed(0);
+  Serial.println("Back Left");
+  backLeft.speed(speed);
+  delay(1000);
+  frontLeft.speed(speed);
+  Serial.println("0 Right");
+  backRight.speed(speed);
+  delay(1000);
+  frontLeft.speed(0);
 }

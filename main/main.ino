@@ -105,14 +105,41 @@ void setup() {
   encR = 0;
   // LIDARSetup();
   Serial.println("Ready to start");
+  // robot._objects.push_back(Vector2D(-4,45));
+  // robot._objects.push_back(Vector2D(75,124));
 }
 
 
 int iter = 0;
 void loop() {
+  // std::vector<Direction> dirs = {NORTH, EAST, WEST, SOUTH, WEST};
+  // robot.newMoveDirections(dirs);
+  // stop_motors();
+  // delay(10000000);
+
+  // while (abs(getTilt()) < RAMP_TILT_THRESH) {
+  //     forward(FORWARD_MOVE_SPEED);
+  // }
+  // robot.rampCase();
+  // while(1){
+  //   Serial.print("Angle: "); Serial.print(getBNO()); Serial.print(" Tilt: "); Serial.print(getTilt()); Serial.print("; "); printColorSensorData(); Serial.print("; "); printTOFs();
+  // }
+  // servo.write(90);
+  // while(1){
+  //   dropVictims('L','s');
+  //   dropVictims('R','s');
+  // }
+  // while(1){
+  //   encL = 0;
+  //   while(encL<ENC_PER_ROT){
+  //     forward(40);
+  //   }
+  //   stop_motors();
+  //   delay(800);
+  // }
   // forwardCm(60,30);
   // forward(60);
-  // delay(10000);
+  // // delay(10000);
   //   long long start = millis(), timer = start;
   //   encL = 0;
   //   encR = 0;
@@ -126,6 +153,7 @@ void loop() {
   //   }
 
   // }
+  // stop_motors(); delay(100000000);
   // obstacleTest();
   // robot.turn_to(180);
   // robot._facing = SOUTH;
@@ -134,20 +162,45 @@ void loop() {
   // robot._coords = Vector2D(0, 0);
   // robot._objects.push_back(Vector2D(5, 20));
   // robot.moveToTarget(Vector2D(-2, 30));
-  robot.turn_to(180);
-  stop_motors();
-  delay(500);
-  robot._facing = SOUTH;
-  robot._coords = Vector2D(0, 3);
-  robot._objects.push_back(Vector2D(-5, -20));
-  robot.moveToTarget(Vector2D(2, -32));
-  stop_motors();
-  delay(500);
-  robot.turn_to(270);
-  robot._facing = WEST;
-  stop_motors();
-  delay(500);
-  robot.moveToTarget(Vector2D(-32, -32));
+
+  // robot.turn_to(180);
+  // stop_motors();
+  // delay(500);
+  // robot._facing = SOUTH;
+  // robot._coords = Vector2D(0, 0);
+  // robot.adjustCoords();
+  // robot._objects.push_back(Vector2D(-5, -20));
+  // robot.moveToTarget(Vector2D(2, -30));
+  // robot._pos.y=-1;
+  // stop_motors();
+  // delay(500);
+  // robot.turn_to(270);
+  // robot._facing = WEST;
+  // robot.adjustCoords();
+  // stop_motors();
+  // delay(500);
+  // robot.moveToTarget(Vector2D(-30, -32));
+  // robot._pos.x=-1;
+
+  // robot.adjustCoords();
+  // robot.turn_to(180);
+  // robot._facing = SOUTH;
+  // robot.adjustCoords();
+
+  // robot._objects.push_back(Vector2D(5,60));
+  // robot.adjustCoords();
+  // robot.moveToTarget(Vector2D(0,30));
+  // stop_motors(); delay(500);
+  // robot._pos.y++;
+  // robot.adjustCoords();
+  // robot.moveToTarget(Vector2D(2,60));
+  // stop_motors(); delay(500);
+  // robot._pos.y++;
+  // robot.adjustCoords();
+  // robot.moveToTarget(Vector2D(0,90));
+  // stop_motors(); delay(500);
+  // robot._pos.y++;
+  // robot.adjustCoords();
 
   // trackPos();
   // int tempang = 90;
@@ -155,7 +208,7 @@ void loop() {
   //   robot.turn_to(tempang);
   //   stop_motors();
   //   delay(1000);
-  //   tempang = (tempang+90)%360;
+  //   tempang = (tempang+180)%360;
   //   // forward(50);
   //   // delay(2000);
   //   // backward(50);
@@ -172,8 +225,10 @@ void loop() {
   // robot._facing = WEST;
   // stop_motors(); delay(500);
   // robot.moveToTarget(Vector2D(-32,-32));
-  stop_motors();
-  delay(10000000);
+
+  // stop_motors();
+  // delay(10000000);
+
   // std::vector<Direction> directions = {NORTH, NORTH, EAST, EAST, SOUTH, SOUTH, WEST, WEST};
   // robot.moveDirections(directions);
   // Serial.println(getBNO());
@@ -235,10 +290,13 @@ void loop() {
 
   Serial.print("\nAt point ");
   printPoint(robot._pos);
+  Serial.print("Coords: ");
+  robot._coords.print();
+  Serial.println();
   switch (robot._status) {
     case TRAVERSING:
     case DANGERZONE:
-      switch (robot.moveDirections(maze.findNextMove())) {
+      switch (robot.newMoveDirections(maze.findNextMove())) {
         case NOMOVES:
           if (robot._status == DANGERZONE) robot._status = BACKTRACKING;
           Serial.println("Can't find moves");
@@ -278,6 +336,10 @@ void loop() {
         case GOOD:
           maze.updateTile();
           break;
+        case WALLOBSTACLE:
+          maze.AddWall(robot._pos, robot._facing);
+          maze.AddWall(nextPoint(robot._pos, robot._facing), (Direction)((robot._facing+2)%4));
+          break;
       }
       break;
     case BACKTRACKING:
@@ -296,6 +358,9 @@ void loop() {
   }
   Serial.print("Ended at point ");
   printPoint(robot._pos);
+  Serial.print("Coords: ");
+  robot._coords.print();
+  Serial.println();
 
 
 

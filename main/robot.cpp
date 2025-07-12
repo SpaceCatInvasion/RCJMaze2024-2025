@@ -123,18 +123,27 @@ ReturnError Robot::rampCase() {
   double distForward = 0;  // x dist forward
   int prevEnc = 0;
   float angle = getTilt();
-  int calcIter = 0;
+  long long timer = millis();
   double baseSpeed, tofError;
   while ((abs(getTilt())) > RAMP_TILT_THRESH) {
     if (interrupted) {
       interruptFunc();
     }
-    if (!(calcIter++ % 10)) {
-      baseSpeed = RAMP_MOVE_SPEED * (1 + 0.01 * (angle - 20));  //PID
+    if (millis() - timer > 100) {
+      baseSpeed = RAMP_MOVE_SPEED * (incline ? (1 + 0.012 * (angle - 20)) : 1.2);  //PID
       tofError = (double)(30 - TOF_WIDTH) / 2 - readTOF(LEFT_TOF);
       if (tofError > 15 || tofError < -15) tofError = 0;
-      lmotors(baseSpeed + tofError * (incline ? 5 : 1));
-      rmotors(baseSpeed - tofError * (incline ? 5 : 1));
+      double lspeed = baseSpeed + tofError * (incline ? 5 : 1);
+      double rspeed = baseSpeed - tofError * (incline ? 5 : 1);
+      if (incline) {
+        lmotors(lspeed);
+        rmotors(rspeed);
+      } else {
+        frontLeft.speed(lspeed);
+        frontRight.speed(rspeed);
+        backLeft.speed(lspeed - 20);
+        backRight.speed(rspeed - 20);
+      }
       distForward += encToCm(encR - prevEnc) * cos((aToR(angle = getTilt())));
       Serial.print("Enc: ");
       Serial.print(encR);
@@ -145,6 +154,7 @@ ReturnError Robot::rampCase() {
       Serial.print(" Cos: ");
       Serial.println(cos(aToR(angle)));
       prevEnc = encR;
+      timer = millis();
     }
   }
   distForward *= .9;  // tested error
@@ -188,13 +198,14 @@ ReturnError Robot::rampCase() {
     rampTilesForward = incline ? 1 : 0;
     return RAMP;
   }
-  forwardCm(60, 5);
+  forwardCm(60, incline ? 10 : 0);
   stop_motors();
-  delay(500 + blueTrigger ? 4500 : 0);
+  if(blueTrigger) tone(BUZZER, 1200, 200);
+  delay(500 + (blueTrigger ? 4500 : 0));
   return RAMP;
 }
 
-ReturnError Robot::colorCase(bool* blueTrigger, bool* silverTrigger, bool* redTrigger) {
+ReturnError Robot::colorCase(bool* blueTrigger, bool* silverTrigger) {
   switch (getColor()) {
     case BLUE:
       if (*blueTrigger) break;  //encToCm(encR) < 20 ||
@@ -208,17 +219,17 @@ ReturnError Robot::colorCase(bool* blueTrigger, bool* silverTrigger, bool* redTr
       }
       break;
     case BLACK:
-      if (*redTrigger) break;
       stop_motors();
       delay(200);
       if (getColor() == BLACK) {
         tone(BUZZER, 200, 500);
-        backwardCm(FORWARD_MOVE_SPEED, encToCm(encR) + 1);
+        Vector2D target = visitedPositions.top();
+        double angle = rToA(atan((_coords.x-target.x)/(_coords.y-target.y))) + (_coords.y>target.y?0:180);
+        _coords.print(); Serial.print(" -> "); target.print(); Serial.print("\n Angle: ");
+        Serial.println(angle);
+        turn_to(angle);
+        backwardCm(FORWARD_MOVE_SPEED, (_coords - target).mag());
         restartPi = cmToEnc(5);
-        if (*blueTrigger) {
-          stop_motors();
-          delay(5000);
-        }
         return BLACKTILE;
       }
       break;
@@ -234,23 +245,6 @@ ReturnError Robot::colorCase(bool* blueTrigger, bool* silverTrigger, bool* redTr
         *silverTrigger = true;
       }
       break;
-    case RED:
-      if (_status == TRAVERSING) {
-        stop_motors();
-        delay(200);
-        if (getColor() == RED) {
-          backwardCm(FORWARD_MOVE_SPEED, encToCm(encR) + 1);
-          return REDTILE;
-        }
-        break;
-      } else if (!*redTrigger) {
-        stop_motors();
-        delay(200);
-        if (getColor() == RED) {
-          tone(BUZZER, 600, 500);
-          *redTrigger = true;
-        }
-      }
     case WHITE:
     default:
       break;
@@ -278,8 +272,69 @@ ReturnError Robot::objectCase(double cmLeft, double cmGoal) {
     backwardCm(FORWARD_MOVE_SPEED, cmGoal - cmLeft);  //middle obstacle - count as black tile
     return BLACKTILE;
   }
-  backwardCm(60, 15);
+  backwardCm(60, 10);
+  //Rotation Matrix
+  double angle = aToR(getBNO());
+  double a = cos(angle), b = sin(angle), c = -sin(angle), d = cos(angle);
+  Vector2D obstacle = Vector2D(lswitch ? 4 : -4, 20);
+  _objects.push_back(obstacle.transform(a, b, c, d));
   return GOOD;
+}
+
+ReturnError Robot::newObjectCase(Vector2D goal) {
+  stop_motors();
+  delay(500);
+  bool lswitch = digitalRead(LEFT_LIMIT_SWITCH_PIN) == LOW, rswitch = digitalRead(RIGHT_LIMIT_SWITCH_PIN) == LOW;
+  if (!lswitch && !rswitch) {
+    return CONTINUE;
+  }
+
+  if (lswitch && rswitch) {
+    bool seeWall = readTOF(FRONT_TOF) < 8;
+    if ((goal - _coords).mag() > 30 - (seeWall ? 8 : 5)) {  //close obstacle - count as wall
+      tone(BUZZER, 800, 200);
+      backwardCm(60, 3);
+      return WALLOBSTACLE;
+    }
+    if ((goal - _coords).mag() < (seeWall ? 8 : 5)) {  //far obstacle - pretend it is wall
+      tone(BUZZER, 400, 200);
+      backwardCm(60, 3);
+      return GOOD;
+    }
+    tone(BUZZER, 200, 200);
+    backwardCm(FORWARD_MOVE_SPEED, (goal - _coords).mag());  //middle obstacle - count as black tile
+    return BLACKTILE;
+  }
+
+  tone(BUZZER, 300, 200);
+  delay(400);
+  tone(BUZZER, 600, 200);
+  backwardCm(60, 10);
+  //Rotation Matrix
+  double angle = aToR(getBNO());
+  Serial.print("Angle: ");
+  Serial.println(angle);
+  double a = cos(angle), b = sin(angle), c = -sin(angle), d = cos(angle);
+  Serial.print(a);
+  Serial.print(", ");
+  Serial.print(b);
+  Serial.print(", ");
+  Serial.print(c);
+  Serial.print(", ");
+  Serial.println(d);
+  _coords = _coords - Vector2D(0, 10).transform(a, b, c, d);
+  Vector2D obstacle = Vector2D(lswitch ? 3.5 : -3.5, 20);
+  Serial.print("Object at: ");
+  obstacle.print();
+  Serial.println();
+  obstacle = _coords + obstacle.transform(a, b, c, d);
+  _objects.push_back(obstacle);
+  Serial.print("Object actaully at: ");
+  obstacle.transform(a, b, c, d).print();
+  Serial.print("\nrobot at ");
+  _coords.print();
+  Serial.println();
+  return CONTINUE;
 }
 
 /*
@@ -324,7 +379,7 @@ ReturnError Robot::robotForward(double cm) {
     }
 
     if (millis() - colorTimer > 100) {
-      ReturnError colorReturn = colorCase(&blueTrigger, &silverTrigger, &redTrigger);
+      ReturnError colorReturn = colorCase(&blueTrigger, &silverTrigger);
       switch (colorReturn) {
         case GOOD: break;
         default: return colorReturn;
@@ -348,6 +403,8 @@ ReturnError Robot::robotForward(double cm) {
   return GOOD;
 }
 
+
+
 /*
  * Align the robot with the front TOF
  *
@@ -357,11 +414,11 @@ ReturnError Robot::robotForward(double cm) {
 void Robot::frontAlign() {
   Serial.println("Front Aligning");
   int dist = readTOF(FRONT_TOF);
-  while (dist < 15 && dist > (30 - FRONTBACKTOF) / 2) {
+  while (dist < 15 && dist > (30 - FRONTBACKTOF) / 2 - 2) {
     forward(30);
     dist = readTOF(FRONT_TOF);
   }
-  while (dist < 15 && dist < (30 - FRONTBACKTOF) / 2) {
+  while (dist < 15 && dist < (30 - FRONTBACKTOF) / 2 - 2) {
     backward(30);
     dist = readTOF(FRONT_TOF);
   }
@@ -376,11 +433,11 @@ void Robot::frontAlign() {
 void Robot::backAlign() {
   Serial.println("Back Aligning");
   int dist = readTOF(BACK_TOF);
-  while (dist < 15 && dist > (30 - FRONTBACKTOF) / 2) {
+  while (dist < 15 && dist > (30 - FRONTBACKTOF) / 2 - 1) {
     backward(30);
     dist = readTOF(BACK_TOF);
   }
-  while (dist < 15 && dist < (30 - FRONTBACKTOF) / 2) {
+  while (dist < 15 && dist < (30 - FRONTBACKTOF) / 2 - 1) {
     forward(30);
     dist = readTOF(BACK_TOF);
   }
@@ -395,6 +452,8 @@ Robot::Robot() {
   _facing = NORTH;
   _status = DANGERZONE;
   _coords = Vector2D(0, 0);
+  avoiding = false;
+  visitedPositions.push(Vector2D(0,0));
 }
 
 /*
@@ -760,9 +819,9 @@ void velocityToMovement(Vector2D unitVelocity) {
   double lspeed = baseSpeed - turnAmount;
   double rspeed = baseSpeed + turnAmount;
   double maxspeed = max(abs(lspeed), abs(rspeed));
-  if (maxspeed > 100) {
-    lspeed *= 100 / maxspeed;
-    rspeed *= 100 / maxspeed;
+  if (maxspeed > 80) {
+    lspeed *= 80 / maxspeed;
+    rspeed *= 80 / maxspeed;
   }
   lmotors(lspeed);
   rmotors(rspeed);
@@ -1145,13 +1204,15 @@ int getAddition() {
 }
 
 
-#define FORWARD_WEIGHT 9
-#define FIELD_STRENGTH 13
-#define WALL_STRENGTH 5
-#define OBJECT_STRENGTH 10  //untuned
-#define OBJECT_RADIUS 2.5   //untuned
+#define FORWARD_WEIGHT 15
+#define FIELD_STRENGTH 18
+#define WALL_STRENGTH 12
+#define OBJECT_STRENGTH 12  //untuned
+#define OBJECT_RADIUS 4     //untuned
 #define DELTA_TIME 20       //millis
 #define TANK_TURN_DEADZONE 0.2
+#define OBJECT_RANGE 20
+#define OBJECT_DELETE_RANGE 60
 void obstacleTest() {
   Vector2D pos(0, 0), deltapos(0, 0);
   Serial.println("one");
@@ -1228,8 +1289,10 @@ void obstacleTest() {
 }
 
 ReturnError Robot::moveToTarget(Vector2D target, bool clearObjects) {
+  goingForward = true;
   if (clearObjects) _objects.clear();
-  Vector2D roundedPos = Vector2D((int)_coords.x - ((int)_coords.x % 30) + ((int)_coords.x % 30 > 15 ? 30 : 0), (int)_coords.y - ((int)_coords.y % 30) + ((int)_coords.y % 30 > 15 ? 30 : 0));
+  Vector2D offset = Vector2D((((int)_coords.x % 30) + 30) % 30, (((int)_coords.y % 30) + 30) % 30);
+  Vector2D roundedPos = Vector2D((int)_coords.x - offset.x + (offset.x > 15 ? 30 : 0), (int)_coords.y - offset.y + (offset.y > 15 ? 30 : 0));
   Vector2D deltapos(0, 0);
   Vector2D velocity = (target - _coords).normalized() * FORWARD_WEIGHT;
   Vector2D force(0, 0);
@@ -1237,8 +1300,9 @@ ReturnError Robot::moveToTarget(Vector2D target, bool clearObjects) {
   encL = 0;
   encR = 0;
   double dl, dr, dCenter, theta;  // theta-clockwise angle from north
-  long long timer = millis(), currTime = timer;
+  long long timer = millis(), currTime = timer, colorTimer = timer;
   Vector2D facingVector = directionToVector(_facing);
+  bool blueTrigger = false, silverTrigger = false;
   Serial.print("\nStarting Coords: ");
   _coords.print();
   Serial.print("\nRounded Coords: ");
@@ -1256,8 +1320,42 @@ ReturnError Robot::moveToTarget(Vector2D target, bool clearObjects) {
     }
   }
   Serial.println();
-  while (_coords * facingVector < target * facingVector) {
+  forward(60);
+  while (_coords * facingVector < target * facingVector - (readTOF(FRONT_TOF) < 5 ? 5 : 0)) {
+
+    if (digitalRead(LEFT_LIMIT_SWITCH_PIN) == LOW || digitalRead(RIGHT_LIMIT_SWITCH_PIN) == LOW) {
+      ReturnError obsReturn = newObjectCase(target);
+      switch (obsReturn) {
+        case CONTINUE:
+          target = target + facingVector * 2;
+          break;
+        case GOOD:
+        case WALLOBSTACLE:
+        case BLACKTILE:
+          return obsReturn;
+      }
+      prevEncL = 0;
+      prevEncR = 0;
+      encL = 0;
+      encR = 0;
+    }
+
+    if (abs(getTilt()) > RAMP_TILT_THRESH) {
+      return rampCase();
+    }
     currTime = millis();
+    if (currTime - colorTimer > 50) {
+      ReturnError colorReturn = colorCase(&blueTrigger, &silverTrigger);
+      switch (colorReturn) {
+        case GOOD: break;
+        default: return colorReturn;
+      }
+      colorTimer = millis();
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+
+
     if (currTime - timer > DELTA_TIME) {
       dl = encToCm(encL - prevEncL);
       dr = encToCm(encR - prevEncR);
@@ -1273,37 +1371,174 @@ ReturnError Robot::moveToTarget(Vector2D target, bool clearObjects) {
       }
       _coords = _coords + deltapos;
 
-      force = (target - _coords).normalized() * FIELD_STRENGTH;
-      // force.x += WALL_STRENGTH / max(0.1, (pos.x + 15));
-      // force.x += WALL_STRENGTH / max(0.1, (15 - pos.x));
+      force = facingVector * FIELD_STRENGTH;
       Vector2D right = directionToVector((Direction)(((int)_facing + 1) % 4));
-      Vector2D rightWall = (right * (WALL_STRENGTH / max(0.3, (TILE_LENGTH - WIDTH) / 2 - ((_coords - roundedPos) * right)))) * -1;
-      Vector2D leftWall = (right * (WALL_STRENGTH / max(0.3, ((_coords - roundedPos) * right) + (TILE_LENGTH - WIDTH) / 2)));
+      Vector2D rightWall = (right * (WALL_STRENGTH / max(0.3, (TILE_LENGTH - WIDTH - 4) / 2 - ((_coords - roundedPos) * right)))) * -1;
+      Vector2D leftWall = (right * (WALL_STRENGTH / max(0.3, ((_coords - roundedPos) * right) + (TILE_LENGTH - WIDTH - 4) / 2)));
       force = force + rightWall + leftWall;
-      Serial.print("Right: ");
-      right.print();
-      Serial.print("; Left Wall: ");
-      leftWall.print();
-      Serial.print("; Right Wall: ");
-      rightWall.print();
-      // force.x += OBJECT_STRENGTH / max(0.5,abs(pos.x-object.x)-OBJECT_RADIUS) * (0<object.x?-1:1);//(dist.x*dist.x+dist.y*dist.y)));
-      for (Vector2D object : _objects) {
-        Vector2D objForce = (right * (OBJECT_STRENGTH / max(.8, abs((_coords - object) * right) - OBJECT_RADIUS) * ((_coords - object) * right < 0 ? -1 : 1)));
-        Serial.print("; Object: ");
-        objForce.print();
+      // for (Vector2D object : _objects) {
+      //   if ((_coords - object).mag() > OBJECT_RANGE) continue;
+      //   Vector2D objForce = (right * (OBJECT_STRENGTH / max(.8, abs((_coords - object) * right) - OBJECT_RADIUS) * ((_coords - object) * right < 0 ? -1 : 1)));
+      //   force = force + objForce;
+      // }
+      for (auto it = _objects.begin(); it != _objects.end(); it++) {
+        if ((_coords - *it).mag() > OBJECT_RANGE) continue;
+        if ((_coords - *it).mag() > OBJECT_DELETE_RANGE) {
+          _objects.erase(it);
+          continue;
+        }
+        Vector2D objForce = (right * (OBJECT_STRENGTH / max(.8, abs((_coords - *it) * right) - OBJECT_RADIUS) * ((_coords - *it) * right < 0 ? -1 : 1)));
         force = force + objForce;
       }
       velocity = (velocity + force).normalized() * FORWARD_WEIGHT;
-      Serial.print("; Force: ");
-      force.print();
-      Serial.print("; Velocity: ");
-      velocity.print();
-      Serial.print("; Pos: ");
-      _coords.print();
-      Serial.println();
     }
     velocityToMovement(velocity.normalized());
   }
   Serial.println("Done");
+  if(blueTrigger) return BLUETILE;
   return GOOD;
+}
+
+#define BIAS 0  // -2
+void Robot::adjustCoords(bool nearestNinety) {
+  if (nearestNinety) {
+    turn_to(directionAngle(_facing));
+    stop_motors();
+    delay(200);
+  }
+  //transformation matrix
+  double angle = aToR(getBNO());
+  double a = sin(angle), b = cos(angle), c = cos(angle), d = -sin(angle);
+  Serial.print("Angle: ");
+  Serial.println(rToA(angle));
+  Serial.println("Transformation Matrix:");
+  Serial.print("|");
+  Serial.print(a);
+  Serial.print("\t");
+  Serial.print(b);
+  Serial.println("|");
+  Serial.print("|");
+  Serial.print(c);
+  Serial.print("\t");
+  Serial.print(d);
+  Serial.println("|");
+
+  double front = readTOF(FRONT_TOF), back = readTOF(BACK_TOF), left = readTOF(LEFT_TOF), right = readTOF(RIGHT_TOF);
+  Serial.print("Front: ");
+  Serial.print(front);
+  Serial.print("; Back: ");
+  Serial.print(back);
+  Serial.print("; Left : ");
+  Serial.print(left);
+  Serial.print("; Right: ");
+  Serial.println(right);
+  Vector2D change(0, 0);
+  if (front < 20 && front > 0.2) {
+    change.x = (TILE_LENGTH - FRONTBACKTOF) / 2 - front;
+  }
+  if (back < 20 && back > 0.2) {
+    if (!change.x) {
+      change.x = back - (TILE_LENGTH - FRONTBACKTOF) / 2;
+    } else {
+      change.x += back - (TILE_LENGTH - FRONTBACKTOF) / 2;
+      change.x /= 2;
+    }
+  }
+  if (right < 20 && right > 0.2) {
+    change.y = (TILE_LENGTH - TOF_WIDTH) / 2 - right;
+  }
+  if (left < 20 && left > 0.2) {
+    if (!change.y) {
+      change.y = left - (TILE_LENGTH - TOF_WIDTH) / 2;
+    } else {
+      change.y += left - (TILE_LENGTH - TOF_WIDTH) / 2;
+      change.y /= 2;
+    }
+  }
+  Serial.print("Change: ");
+  change.print();
+  change = Vector2D(a * change.x + b * change.y, c * change.x + d * change.y);
+  Serial.print("; Transformed: ");
+  change.print();
+  Serial.print("\nOld coords: ");
+  _coords.print();
+  Serial.print(" -> New coords: ");
+  if (change.x) _coords.x = _pos.x * 30 + change.x;
+  if (change.y) _coords.y = _pos.y * 30 + change.y;
+  _coords.print();
+  Serial.println();
+}
+
+
+ReturnError Robot::newMoveRobot(Direction dir) {
+  _facing = dir;
+  stop_motors();
+  delay(200);
+  turn_to(directionAngle(dir));
+  stop_motors();
+  delay(200);
+  adjustCoords();
+  visitedPositions.push(_coords);
+  switch (moveToTarget(Vector2D(_pos.x * 30, _pos.y * 30) + (directionToVector(dir) * TILE_MOVE_DIST))) {
+    case WALLOBSTACLE:
+      goingForward = false;
+      return WALLOBSTACLE;
+    case RAMP:
+      goingForward = false;
+      int back;
+      while (readTOF(BACK_TOF) < 15) forward(60);
+      stop_motors();
+      delay(500);
+      return RAMP;
+    case BLACKTILE:
+      goingForward = false;
+      return BLACKTILE;
+    case SILVERTILE:
+      goingForward = false;
+      return SILVERTILE;
+    case BLUETILE:
+      goingForward = false;
+      stop_motors();
+      delay(5000);
+    case GOOD:
+    default:
+      goingForward = false;
+      return GOOD;
+  }
+}
+
+ReturnError Robot::newMoveDirections(std::vector<Direction> directions) {
+  if (directions.empty()) return NOMOVES;
+  ReturnError moveStatus = GOOD;
+  int numLeft = directions.size();
+  bool trigger = false;
+  for (Direction d : directions) {
+    if (--numLeft) {
+      doVictims = false;
+      trigger = true;
+    } else {
+      doVictims = true;
+      if (trigger) restartPi = cmToEnc(5);
+    }
+    printDir(d);
+
+    _coords.x = _pos.x * 30;
+    _coords.y = _pos.y * 30;
+    switch ((moveStatus = newMoveRobot(d))) {
+      case WALLOBSTACLE:
+        return WALLOBSTACLE;
+      case BLACKTILE:
+        _pos = nextPoint(_pos, d);
+        return BLACKTILE;
+      case SILVERTILE:
+        _pos = nextPoint(_pos, d);
+        return SILVERTILE;
+      default:
+        _pos = nextPoint(_pos, d);
+        break;
+    }
+    stop_motors();
+    delay(200);
+  }
+  return moveStatus;
 }

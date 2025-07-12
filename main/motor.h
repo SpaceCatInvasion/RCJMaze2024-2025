@@ -21,6 +21,7 @@ void stop_motors();
 void forwardCm(int speed, int cm);
 void backwardCm(int speed, int cm);
 void testForward();
+void testMotors(int speed);
 // void backtrack(int speed);
 
 int cmToEnc(double cm);

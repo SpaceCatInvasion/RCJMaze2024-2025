@@ -29,7 +29,7 @@ double readTOF(int num) {
   if (measure.RangeStatus == 4) {
     return 8196;
   }
-  return measure.RangeMilliMeter * 6.25 / 80;
+  return measure.RangeMilliMeter * 6.25 / 80 * 20.0 / 18;
 }
 
 void printTOFs() {
